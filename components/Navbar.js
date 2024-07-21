@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { useWebStore } from "@/context";
 import Logo from "@/user_stuffs/logo.png";
 import CateogryData from "./other/CateogryData";
@@ -11,14 +12,32 @@ import CategoryData from "./other/AnimeCateogryData";
 const Navbar = () => {
   const pathname = usePathname();
   const { setProgress } = useWebStore();
+  const [scrolled, setScrolled] = useState(false);
+
+  const handleScroll = () => {
+    if (window.scrollY > 50) {
+      setScrolled(true);
+    } else {
+      setScrolled(false);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   const showLoading = () => {
     setProgress(30);
   };
+
   return (
     <>
-      <div className="px-5 py-2 sticky top-0 z-50 bg-black">
+      <div className={`px-5 py-2 sticky top-0 z-50 transition-colors duration-300 ${scrolled ? 'bg-black' : 'bg-transparent'}`}>
         <div className="xl:w-[1560px] sm:w-[75%] w-full mx-auto">
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center ">
             <Link href="/" className="flex items-center" onClick={showLoading}>
               <div className="w-10 xl:w-[15%] lg:w-[13%]">
                 <Image src={Logo} alt="Logo" />
@@ -52,9 +71,10 @@ const Navbar = () => {
               </Link>
             </div>
           </div>
-          {pathname.includes("anime_hub") ? <CategoryData/> : <CateogryData/>}
         </div>
       </div>
+          <hr className="mt-[2%]"/>
+          {pathname.includes("anime_hub") ? <CategoryData/> : <CateogryData/>}
     </>
   );
 };
