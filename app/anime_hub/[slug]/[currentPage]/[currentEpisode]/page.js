@@ -7,21 +7,21 @@ export default async function Anime_Content_Post({ params }) {
   const parsedCurrentPage = parseInt(currentPage, 10);
 
   let response = await getContentData(slug);
-  const content = response.content;
+  const content = response?.content;
 
   function createMarkup(content) {
     return { __html: content };
   }
 
-  const data = content.content.toLowerCase();
+  const data = content?.content?.toLowerCase();
 
-  const startTextIndex = data.indexOf(`class="description">`);
-  const endTextIndex = data.indexOf("</div>", startTextIndex);
+  const startTextIndex = data?.indexOf(`class="description">`);
+  const endTextIndex = data?.indexOf("</div>", startTextIndex);
 
   // Extract meta data description
   let extractedText = "";
   if (startTextIndex !== -1 && endTextIndex !== -1) {
-    extractedText = content.content.slice(
+    extractedText = content?.content?.slice(
       startTextIndex + `class="description">`.length,
       endTextIndex
     );
@@ -30,21 +30,21 @@ export default async function Anime_Content_Post({ params }) {
   }
 
   // Extract keywords
-  const listKeywordsTitle = content.slug.split(" ");
-  const listImage = content.image.split("/");
-  const finalKeywords = listKeywordsTitle.join(", ") + " " + content.title + content.slug + listImage.join(", ");
+  const listKeywordsTitle = content?.slug?.split(" ");
+  const listImage = content?.image?.split("/");
+  const finalKeywords = listKeywordsTitle?.join(", ") + " " + content?.title + content?.slug + listImage?.join(", ");
   return (
     <>
       <div>
-        <title>{`Download ${content.title.slice(0, 65)} Origin + Dubbed in 480p, 720p, 1080p, 2K and 4K`}</title>
-        <meta property="og:title" content={`Download ${content.title.slice(0, 65)} Origin + Dubbed in 480p, 720p, 1080p, 2K and 4K`} />
-        <meta name="twitter:title" content={`Download ${content.title.slice(0, 65)} in Origin+Dubbed in 480p, 720p, 1080p, 2K and 4K`} />
-        <meta name="description" content={extractedText.slice(0, 170)} />
+        <title>{`Download ${content?.title?.slice(0, 65)} Origin + Dubbed in 480p, 720p, 1080p, 2K and 4K`}</title>
+        <meta property="og:title" content={`Download ${content?.title?.slice(0, 65)} Origin + Dubbed in 480p, 720p, 1080p, 2K and 4K`} />
+        <meta name="twitter:title" content={`Download ${content?.title?.slice(0, 65)} in Origin+Dubbed in 480p, 720p, 1080p, 2K and 4K`} />
+        <meta name="description" content={extractedText?.slice(0, 170)} />
         <meta name="keywords" content={finalKeywords} />
-        <meta property="og:description" content={extractedText.slice(0, 170)} />
+        <meta property="og:description" content={extractedText?.slice(0, 170)} />
         <meta
           name="twitter:description"
-          content={extractedText.slice(0, 170)}
+          content={extractedText?.slice(0, 170)}
         />
         <meta
           property="og:url"
@@ -63,7 +63,7 @@ export default async function Anime_Content_Post({ params }) {
         <div
           className="flex flex-col text-justify justify-center gap-y-2 py-6 px-4 text-xs xs:text-sm md:text-base contentClass text-gray-700 contentCode"
           dangerouslySetInnerHTML={createMarkup(
-            content.content
+            content?.content
               .replace(/h1/, /h2/)
               .replace(/<img[^>]*>/, "")
               .replace(/Click to manage book marks/gi, "")
