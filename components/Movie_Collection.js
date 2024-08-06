@@ -12,9 +12,10 @@ import { useWebStore } from "@/context";
 import { useEffect } from "react";
 
 const MoviesCollection = ({ data, collectionName, movieLink, url }) => {
-  const { setProgress } = useWebStore();
+  const { setProgress, setIsLoading } = useWebStore();
   const showLoading = () => {
     setProgress(30);
+    setIsLoading(true);
   };
 
   useEffect(() => {
@@ -72,9 +73,9 @@ const MoviesCollection = ({ data, collectionName, movieLink, url }) => {
 
       // Handle vegamovies domain replacements
       const vegamoviesPatterns = [
-        { old: "m.vegamovies.yt", new: "vegamovies.ist" },
-        { old: "vegamovies.yt", new: "vegamovies.ist" },
-        { old: "//vegamovies.mex.com", new: "https://vegamovies.ist" },
+        { old: "m.vegamovies.yt", new: "vegamovies.tw" },
+        { old: "vegamovies.yt", new: "vegamovies.tw" },
+        { old: "//vegamovies.mex.com", new: "https://vegamovies.tw" },
       ];
 
       for (const pattern of vegamoviesPatterns) {
@@ -156,10 +157,10 @@ const MoviesCollection = ({ data, collectionName, movieLink, url }) => {
         >
           {data &&
             data.map((element, index) => (
-              <SwiperSlide key={index}>
+              <SwiperSlide key={index} onClick={showLoading}>
                 <Link href={`/${url}/${element.slug}${
             url === "anime_hub" ? "/0/1" : ""
-          }`} onClick={showLoading}>
+          }`}>
                   <div className="flex flex-col justify-center w-[144px] m-auto items-center hover:scale-105 cursor-pointer">
                     <div className="relative h-60 -z-10">
                       <Image

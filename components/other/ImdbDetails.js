@@ -6,7 +6,7 @@ import { useWebStore } from "@/context";
 import defaultLogo from "@/user_stuffs/logo.png";
 
 const ImdbDetails = ({ content }) => {
-  const { setProgress } = useWebStore();
+  const { setProgress, setIsLoading } = useWebStore();
   const [hydration, setHydration] = useState(false);
   useEffect(() => {
     // const scripts = [
@@ -5516,6 +5516,7 @@ const ImdbDetails = ({ content }) => {
     // });
     setHydration(true);
     setProgress(100);
+    setIsLoading(false);
   }, []);
 
 if (!hydration) {
@@ -5535,6 +5536,16 @@ if (!hydration) {
     const imageUrl = encodeURIComponent(image);
     const proxyUrl = `/api/image-proxy?url=${imageUrl}`;
 
+    // Check if IMDb details are available and contain poster links
+    if (element.imdbDetails && element.imdbDetails.imdbPosterLink) {
+      const posterLinks = element.imdbDetails.imdbPosterLink;
+      // Check if posterLinks is an array and not empty
+      if (Array.isArray(posterLinks) && posterLinks.length > 0) {
+        // Return the last poster link URL
+        return posterLinks[posterLinks.length - 1].url;
+      }
+    }
+
     // Check if element has a custom image
     if (proxyUrl) {
       if (proxyUrl.includes("https://gogocdn.net")) {
@@ -5543,9 +5554,9 @@ if (!hydration) {
 
       // Handle vegamovies domain replacements
       const vegamoviesPatterns = [
-        { old: "m.vegamovies.yt", new: "vegamovies.ist" },
-        { old: "vegamovies.yt", new: "vegamovies.ist" },
-        { old: "//vegamovies.mex.com", new: "https://vegamovies.ist" },
+        { old: "m.vegamovies.yt", new: "vegamovies.tw" },
+        { old: "vegamovies.yt", new: "vegamovies.tw" },
+        { old: "//vegamovies.mex.com", new: "https://vegamovies.tw" },
       ];
 
       for (const pattern of vegamoviesPatterns) {
@@ -5557,19 +5568,9 @@ if (!hydration) {
       return proxyUrl;
     }
 
-    // Check if IMDb details are available and contain poster links
-    if (element.imdbDetails && element.imdbDetails.imdbPosterLink) {
-      const posterLinks = element.imdbDetails.imdbPosterLink;
-      // Check if posterLinks is an array and not empty
-      if (Array.isArray(posterLinks) && posterLinks.length > 0) {
-        // Return the last poster link URL
-        return posterLinks[posterLinks.length - 1].url;
-      }
-    }
-
     // If no custom image or IMDb poster links available, return default logo
     return defaultLogo;
-  };
+  };  
 
   return (
     <>

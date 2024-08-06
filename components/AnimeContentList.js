@@ -7,9 +7,10 @@ import defaultLogo from "@/user_stuffs/logo.png";
 import { useWebStore } from "@/context";
 
 const ContentList = ({ contents }) => {
-  const { setProgress } = useWebStore();
+  const { setProgress, setIsLoading } = useWebStore();
   const showLoading = () => {
     setProgress(30);
+    setIsLoading(true);
   };
 
   useEffect(() => {
@@ -63,9 +64,9 @@ const ContentList = ({ contents }) => {
 
       // Handle vegamovies domain replacements
       const vegamoviesPatterns = [
-        { old: "m.vegamovies.yt", new: "vegamovies.ist" },
-        { old: "vegamovies.yt", new: "vegamovies.ist" },
-        { old: "//vegamovies.mex.com", new: "https://vegamovies.ist" },
+        { old: "m.vegamovies.yt", new: "vegamovies.tw" },
+        { old: "vegamovies.yt", new: "vegamovies.tw" },
+        { old: "//vegamovies.mex.com", new: "https://vegamovies.tw" },
       ];
 
       for (const pattern of vegamoviesPatterns) {

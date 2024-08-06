@@ -54,6 +54,10 @@ const SearchResult = () => {
     }
   };
 
+  const showLoading = () => {
+    setIsLoading(true);
+  };
+
   useEffect(() => {
     if (query) {
       fetchMoreData();
@@ -63,28 +67,56 @@ const SearchResult = () => {
   }, [query]); // Fetch data whenever query changes
 
   // Calculates total pages based on total data and limit per page
-  const totalPages = Math.ceil(totalData / limit);
+  const totalPages = Math.floor(totalData / limit);
 
-  // Resolves image source for each element
+  // Function to get the appropriate image source
   const getImageSource = (element) => {
-    const { image, imdbDetails } = element;
+    const image = element.image;
 
-    if (image) {
-      // Handle specific image URL transformations
-      const transformedImage = transformImageUrl(image);
-      if (transformedImage) return transformedImage;
+    // If image is null or empty, return default logo
+    if (!image) {
+      return defaultLogo;
     }
 
-    // Fallback to IMDb poster link if available
-    if (imdbDetails && imdbDetails.imdbPosterLink) {
-      const posterLinks = imdbDetails.imdbPosterLink;
-      if (Array.isArray(posterLinks) && posterLinks.length > 0) {
-        return posterLinks[posterLinks.length - 1].url;
+    const imageUrl = encodeURIComponent(image);
+    const proxyUrl = `/api/image-proxy?url=${imageUrl}`;
+
+    
+    // Check if element has a custom image
+    if (proxyUrl) {
+      if (proxyUrl.includes("https://gogocdn.net")) {
+        return proxyUrl.replace("https://ww5.gogoanimes.fi", "");
       }
+      
+      // Handle vegamovies domain replacements
+      const vegamoviesPatterns = [
+        { old: "m.vegamovies.yt", new: "vegamovies.tw" },
+        { old: "vegamovies.yt", new: "vegamovies.tw" },
+        { old: "//vegamovies.mex.com", new: "https://vegamovies.tw" },
+      ];
+      
+      for (const pattern of vegamoviesPatterns) {
+        if (proxyUrl.includes(pattern.old)) {
+          return proxyUrl.replace(pattern.old, pattern.new);
+        }
+      }
+      
+      // Check if IMDb details are available and contain poster links
+      if (element.imdbDetails && element.imdbDetails.imdbPosterLink) {
+        const posterLinks = element.imdbDetails.imdbPosterLink;
+        // Check if posterLinks is an array and not empty
+        if (Array.isArray(posterLinks) && posterLinks.length > 0) {
+          // Return the last poster link URL
+          return posterLinks[posterLinks.length - 1].url;
+        }
+      }
+      
+      return proxyUrl;
     }
 
-    return defaultLogo; // Fallback to default logo if no suitable image found
-  };
+    // If no custom image or IMDb poster links available, return default logo
+    return defaultLogo;
+  };  
 
   // Transforms specific image URLs based on conditions
   const transformImageUrl = (imageUrl) => {
@@ -162,7 +194,7 @@ const SearchResult = () => {
     <div>
       <div className="mt-[2%]">
         <h1 className="text-base">
-          <strong>Movie Results for: </strong>
+          <strong>Content Results for: </strong>
           {query}
         </h1>
         <p>
@@ -173,6 +205,7 @@ const SearchResult = () => {
             <Link
               key={index + 1}
               href={`/${element.title.includes("Download") ? "data" : "anime_hub"}/${element.slug}${element.title.includes("Download") ? "" : "/0/1"}`}
+              onClick={showLoading}
               passHref
             >
               <div className="p-4 to-black relative overflow-hidden rounded-lg shadow-lg cursor-pointer transition-transform duration-300 ease-in-out">
@@ -206,7 +239,7 @@ const SearchResult = () => {
             </Link>
           ))}
         </div>
-        <ResultedContent cateogry="search_result" totalPages={totalPages} query={query} page={page} />
+        <ResultedContent totalPages={totalPages} query={query} page={page} />
       </div>
     </div>
   );

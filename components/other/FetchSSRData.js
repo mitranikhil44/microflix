@@ -9,7 +9,7 @@ const FetchSSRData = async (page, category) => {
         headers: {
           "Content-Type": "application/json",
         },
-        caches: "no-store"
+        cache: "no-store"
       }
     );
     const contents = await response.json();

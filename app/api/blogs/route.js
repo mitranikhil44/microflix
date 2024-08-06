@@ -8,19 +8,17 @@ export async function POST(req) {
     await connectToDatabase();
     const searchParams = req.nextUrl.searchParams;
     const page = parseInt(searchParams.get("page")) || 1;
-    const pageSize = parseInt(searchParams.get("page_size")) || 12;
+    const pageSize = parseInt(searchParams.get("page_size")) || 16;
     const category = searchParams.get("category") || "contents";
 
     const validCategories = [
       "anime_contents",
       "anime_content_movies",
       "anime_content_seasons",
-      "latest_anime_contents",
       "top_anime_contents",
       "top_anime_content_movies",
       "top_anime_content_seasons",
       "contents",
-      "latest_contents",
       "content_movies",
       "content_seasons",
       "content_adult",
@@ -57,11 +55,14 @@ async function fetchContentData(category, page, pageSize) {
   try {
     if (category.startsWith("top_anime")) {
       const filterConditions = buildAnimeFilterConditions(category);
+      const totalCount = await Anime_Contents.countDocuments(filterConditions);
+      const totalPages = Math.ceil(totalCount / pageSize);
+      
       const data = await Anime_Contents.aggregate(
         [
           { $match: filterConditions },
-          { $sort: { "imdbDetails.imdbRating.rating": -1 } },
-          { $skip: (page - 1) * pageSize },
+          { $sort: { "imdbDetails.imdbRating.rating": -1, _id: -1 } }, // Sort by rating and then by _id in descending order
+          { $skip: totalCount - page * pageSize }, 
           { $limit: pageSize },
         ],
         {
@@ -69,16 +70,17 @@ async function fetchContentData(category, page, pageSize) {
         }
       ).exec();
 
-      const totalCount = await Anime_Contents.countDocuments(filterConditions);
-      const totalPages = Math.ceil(totalCount / pageSize);
       response.push({ data, currentPage: page, pageSize, totalPages });
     } else if (category.startsWith("top_content")) {
       const filterConditions = buildFilterConditions(category);
+      const totalCount = await Contents.countDocuments(filterConditions);
+      const totalPages = Math.ceil(totalCount / pageSize);
+
       const data = await Contents.aggregate(
         [
           { $match: filterConditions },
-          { $sort: { "imdbDetails.imdbRating.rating": -1 } },
-          { $skip: (page - 1) * pageSize },
+          { $sort: { "imdbDetails.imdbRating.rating": -1, _id: -1 } }, // Sort by rating and then by _id in descending order
+          { $skip: totalCount - page * pageSize }, // Skip to the last entries first
           { $limit: pageSize },
         ],
         {
@@ -86,109 +88,43 @@ async function fetchContentData(category, page, pageSize) {
         }
       ).exec();
 
-      const totalCount = await Contents.countDocuments(filterConditions);
-      const totalPages = Math.ceil(totalCount / pageSize);
       response.push({ data, currentPage: page, pageSize, totalPages });
     } else if (category.startsWith("anime")) {
       const filterConditions = buildAnimeFilterConditions(category);
+      const totalCount = await Anime_Contents.countDocuments(filterConditions);
+      const totalPages = Math.ceil(totalCount / pageSize);
 
       const data = await Anime_Contents.aggregate(
         [
           { $match: filterConditions },
-          { $skip: (page - 1) * pageSize },
+          { $sort: { _id: -1 } }, // Sort by _id in descending order
+          { $skip: totalCount - page * pageSize }, // Skip to the last entries first
           { $limit: pageSize },
         ],
         { allowDiskUse: true }
       ).exec();
 
-      const totalCount = await Anime_Contents.countDocuments(filterConditions);
-      const totalPages = Math.ceil(totalCount / pageSize);
       response.push({ data, currentPage: page, pageSize, totalPages });
     } else if (category.startsWith("content")) {
       const filterConditions = buildFilterConditions(category);
+      const totalCount = await Contents.countDocuments(filterConditions);
+      const totalPages = Math.ceil(totalCount / pageSize);
+
       const data = await Contents.aggregate(
         [
           { $match: filterConditions },
-          { $skip: (page - 1) * pageSize },
+          { $sort: { _id: -1 } }, // Sort by _id in descending order
+          { $skip: totalCount - page * pageSize }, // Skip to the last entries first
           { $limit: pageSize },
         ],
         { allowDiskUse: true }
       ).exec();
 
-      const totalCount = await Contents.countDocuments(filterConditions);
-      const totalPages = Math.ceil(totalCount / pageSize);
       response.push({ data, currentPage: page, pageSize, totalPages });
-    } else if (category === "latest_contents") {
-      const currentDate = new Date();
-      const twoMonthsAgo = new Date();
-      twoMonthsAgo.setMonth(currentDate.getMonth() - 2);
-      const sortedData = await Contents.aggregate(
-        [
-          {
-            $match: {
-              releaseDate: {
-                $lte: currentDate.toISOString().split("T")[0],
-                $gte: twoMonthsAgo.toISOString().split("T")[0],
-              },
-            },
-          },
-          { $sort: { updatedAt: -1 } },
-          { $skip: (page - 1) * pageSize },
-          { $limit: pageSize },
-        ],
-        { allowDiskUse: true }
-      ).exec();
-
-      const totalCount = await Contents.countDocuments({ releaseDate: {
-        $lte: currentDate.toISOString().split("T")[0],
-        $gte: twoMonthsAgo.toISOString().split("T")[0],
-      }, });
-      const totalPages = Math.ceil(totalCount / pageSize);
-      response.push({
-        data: sortedData,
-        currentPage: page,
-        pageSize,
-        totalPages,
-      });
-    } else if (category === "latest_anime_contents") {
-      const currentDate = new Date();
-      const twoMonthsAgo = new Date();
-      twoMonthsAgo.setMonth(currentDate.getMonth() - 2);
-      const sortedData = await Anime_Contents.aggregate(
-        [
-          {
-            $match: {
-              releaseDate: {
-                $lte: currentDate.toISOString().split("T")[0],
-                $gte: twoMonthsAgo.toISOString().split("T")[0],
-              },
-            },
-          },
-          { $sort: { updatedAt: -1 } },
-          { $skip: (page - 1) * pageSize },
-          { $limit: pageSize },
-        ],
-        { allowDiskUse: true }
-      ).exec();
-
-      const totalCount = await Anime_Contents.countDocuments({
-        releaseDate: {
-          $lte: currentDate.toISOString().split("T")[0],
-          $gte: twoMonthsAgo.toISOString().split("T")[0],
-        },
-      });
-      
-      const totalPages = Math.ceil(totalCount / pageSize);
-      response.push({
-        data: sortedData,
-        currentPage: page,
-        pageSize,
-        totalPages,
-      });
     }
   } catch (error) {
     console.error("Error fetching data for category:", category);
-    throw error; // Re-throw the error to be caught by the outer try-catch block
+    throw error;
   }
 
   return response;
@@ -213,7 +149,7 @@ function buildAnimeFilterConditions(category) {
   }
 }
 
-function buildFilterConditions(category) {  
+function buildFilterConditions(category) {
   switch (category) {
     case "content_movies":
       return { title: { $not: { $regex: "season", $options: "i" } } };
