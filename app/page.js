@@ -43,22 +43,24 @@ export default async function Home() {
       {contentData.contents.length > 0 && (
         <ContentList contents={contentData.contents} />
       )}
-       <PaginationButton totalPages={totalPages} page={1} cateogry={"contents"} />
+      <PaginationButton
+        totalPages={totalPages}
+        page={1}
+        cateogry={"contents"}
+      />
       {/* Google tag (gtag.js) */}
       <Script
         async
-        src="https://www.googletagmanager.com/gtag/js?id=G-80H6K0RCMY"
-        strategy="afterInteractive"
+        src="https://www.googletagmanager.com/gtag/js?id=G-Q52T10QC04"
       />
       <Script>
         {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
-          gtag('config', 'G-80H6K0RCMY');
+          gtag('config', 'G-Q52T10QC04');
         `}
       </Script>
     </>
   );
 }
-
