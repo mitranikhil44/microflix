@@ -197,8 +197,8 @@ const LatestContents = ({ data, movieLink, url }) => {
                     className="w-full h-full object-contain clip-path -mt-[20%] box-content"
                     alt={element.title.replace(/Download/, "").trim()}
                     width={240}
+                    priority={index < 4}
                     height={240}
-                    priority
                   />
                 </div>
               </Link>

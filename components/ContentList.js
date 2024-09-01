@@ -119,6 +119,7 @@ const ContentList = ({ contents }) => {
                     src={getImageSource(element)}
                     alt={element.title.replace(/Download/, "").trim()}
                     className="object-cover hover:scale-110 overflow-hidden rounded-lg -mt-[20%] w-full h-full"
+                    priority={index < 4}
                     style={{
                       clipPath: "polygon(0 10%, 100% 10%, 100% 100%, 0% 100%)",
                     }}

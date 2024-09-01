@@ -167,6 +167,7 @@ const MoviesCollection = ({ data, collectionName, movieLink, url }) => {
                         width={144}
                         height={144}
                         src={getImageSource(element)}
+                        priority={index < 4}
                         alt={element.title.replace(/Download/, "").trim()}
                         className="hover:scale-95 rounded-lg w-full h-full clip-path -mt-[20%] vignette"
                       />

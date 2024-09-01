@@ -16,6 +16,7 @@ const FetchSSRData = async (page, category) => {
 
     return {
       contents,
+      revalidate: 60
     };
   } catch (error) {
     return {
