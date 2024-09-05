@@ -5581,7 +5581,6 @@ if (!hydration) {
             alt={content.imdbDetails?.imdbName || "N/A"}
             width={144}
             height={144}
-            priority={index < 4}
             className="rounded-lg clip-path -mt-[17%] h-full w-full"
           />
         </div>
