@@ -5520,7 +5520,6 @@ const ImdbDetails = ({ content }) => {
   }, []);
 
 if (!hydration) {
-    // Render a loading state or nothing until hydration is complete
     return null;
   }
 
