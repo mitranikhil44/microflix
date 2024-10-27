@@ -30,7 +30,7 @@ export default function PaginationButton({ totalPages, page, query }) {
           previousLabel="Previous"
           nextLabel="Next"
           breakClassName="..."
-          forcePage={currentPage - 1}
+          forcePage={currentPage}
         />
       )}
     </div>

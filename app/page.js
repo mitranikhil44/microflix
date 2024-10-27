@@ -6,6 +6,7 @@ import Script from "next/script";
 
 export default async function Home() {
   const contentData = await FetchSSRData(1, "contents");
+  
   const totalPages = contentData.contents[0]?.totalPages;
   return (
     <>

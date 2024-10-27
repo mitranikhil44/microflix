@@ -8,7 +8,7 @@ export async function POST(req) {
 
     const query = req.nextUrl.searchParams.get("query") || "";
     const pageNo = Math.max(1, parseInt(req.nextUrl.searchParams.get("page"), 10) || 1);
-    const pageSize = Math.max(1, parseInt(req.nextUrl.searchParams.get("pageSize"), 10) || 12);
+    const pageSize = Math.max(1, parseInt(req.nextUrl.searchParams.get("pageSize"), 10) || 24);
 
     const skip = (pageNo - 1) * pageSize;
 
