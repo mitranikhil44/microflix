@@ -1,4 +1,3 @@
-
 const FetchSSRData = async (page, category) => {
   const apiKey = process.env.API_KEY;
   try {
