@@ -8,8 +8,12 @@ import Logo from "@/user_stuffs/logo.png";
 import CateogryData from "./other/CateogryData";
 
 const Navbar = () => {
-  const { setProgress } = useWebStore();
   const [scrolled, setScrolled] = useState(false);
+  const { setProgress, setIsLoading } = useWebStore();
+  const showLoading = () => {
+    setProgress(30);
+    setIsLoading(true);
+  };
 
   const handleScroll = () => {
     if (window.scrollY > 50) {
@@ -33,9 +37,6 @@ const Navbar = () => {
     };
   }, []);
 
-  const showLoading = () => {
-    setProgress(30);
-  };
 
   return (
     <>

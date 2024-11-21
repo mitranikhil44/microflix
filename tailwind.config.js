@@ -22,7 +22,7 @@ module.exports = {
         translate_right_to_left:{
           "0%": {transform: 'translateX(100vw)', opacity: '0'},
           '100%': {transform: 'translateX(0vw)', opacity: '1'}
-        }
+        },
       },
       animation:{
         translate_down_to_up: "translate_down_to_up 1s ease-in-out",

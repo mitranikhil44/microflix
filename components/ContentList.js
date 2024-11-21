@@ -14,6 +14,7 @@ const ContentList = ({ contents }) => {
   };
 
   useEffect(() => {
+    setIsLoading(false);
     setProgress(100);
   }, []);
 
@@ -156,7 +157,7 @@ const ContentList = ({ contents }) => {
                   <h4 className="text-xs md:text-sm font-semibold mb-2">
                     {element.title}
                   </h4>
-                  <p className="text-gray-600">Year: {element.releaseYear}</p>
+                  <p className="text-gray-300">Year: {element.releaseYear}</p>
                 </div>
               </div>
             </Link>

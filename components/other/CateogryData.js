@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { useWebStore } from '@/context';
-import Button from '@/components/other/cateogry_data/Button'; 
-import Dropdown from '@/components/other/cateogry_data/Dropdown'; 
-import SearchForm from '@/components/other/cateogry_data/SearchForm';
+import React, { useState, useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useWebStore } from "@/context";
+import Button from "@/components/other/cateogry_data/Button";
+import Dropdown from "@/components/other/cateogry_data/Dropdown";
+import SearchForm from "@/components/other/cateogry_data/SearchForm";
 
 const CateogryData = () => {
   const router = useRouter();
@@ -89,21 +89,21 @@ const CateogryData = () => {
         >
           {pathname.includes("anime_hub") ? "Anime" : ""} TV Series
         </Button>
-          {!pathname.includes("anime_hub") && (
-            <Button
-              href="/data/adult_contents"
-              onClick={showLoading}
-              className="bg-red-500 hover:bg-red-700 text-white mmd:py-2 mmd:px-4 xs:py-1 xs:px-2 py-0 px-1 border border-red-700 mr-2 mmd:mr-3 xl:mr-4"
-            >
-              18+ Contents
-            </Button>
-          )}
+        {!pathname.includes("anime_hub") && (
+          <Button
+            href="/data/adult_contents"
+            onClick={showLoading}
+            className="bg-red-500 hover:bg-red-700 text-white mmd:py-2 mmd:px-4 xs:py-1 xs:px-2 py-0 px-1 border border-red-700 mr-2 mmd:mr-3 xl:mr-4"
+          >
+            18+ Contents
+          </Button>
+        )}
 
         <div className="relative group bg-transparent">
-        <button className="bg-sky-500 text-white font-semibold xl:py-2 mmd:py-1.5 mmd:px-4 xs:py-1 xs:px-2 py-0 px-1 rounded-md group-hover:rounded-b-none group-focus:rounded-b-none flex justify-center items-center gap-1">
-      Top Rated
-    </button>
-          <hr className='hidden group-hover:block group-focus:block'/>
+          <button className="bg-sky-500 text-white font-semibold xl:py-2 mmd:py-1.5 mmd:px-4 xs:py-1 xs:px-2 py-0 px-1 rounded-md group-hover:rounded-b-none group-focus:rounded-b-none flex justify-center items-center gap-1">
+            Top Rated
+          </button>
+          <hr className="hidden group-hover:block group-focus:block" />
           <Dropdown
             items={[
               {
@@ -112,7 +112,9 @@ const CateogryData = () => {
                     ? "/anime_hub/top_anime_movies"
                     : "/data/top_movies"
                 }`,
-                label: `Top ${pathname.includes("anime_hub") ? "Anime " : ""}Movies`,
+                label: `Top ${
+                  pathname.includes("anime_hub") ? "Anime " : ""
+                }Movies`,
               },
               {
                 href: `${
@@ -120,12 +122,18 @@ const CateogryData = () => {
                     ? "/anime_hub/top_anime_web_series"
                     : "/data/top_web_series"
                 }`,
-                label: `Top ${pathname.includes("anime_hub") ? "Anime " : ""}TV Series`,
+                label: `Top ${
+                  pathname.includes("anime_hub") ? "Anime " : ""
+                }TV Series`,
               },
-              {
-                href: `/data/top_adult_contents`,
-                label: "Top 18+ Contents",
-              },
+              ...(!pathname.includes("anime_hub")
+                ? [
+                    {
+                      href: `/data/top_adult_contents`,
+                      label: "Top 18+ Contents",
+                    },
+                  ]
+                : []),
             ]}
             className="w-24 xxs:w-32"
           />

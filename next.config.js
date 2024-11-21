@@ -19,10 +19,12 @@ const nextConfig = {
       'www.themoviedb.org',
       'catimages.org',
       'm.media-amazon.com',
+      "ww9.gogoanimes.fi",
       'imagetot.com',
       'myimg.bid',
       'i3.extraimage.xyz',
       'images.justwatch.com',
+      'ww9.gogoanimes.fihttps',
       'extraimage.net',
       'www.jiopic.com',
       '1.bp.blogspot.com',
@@ -151,6 +153,14 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'ww5.gogoanimes.fi',
+      },
+      {
+        protocol: 'https',
+        hostname: 'ww9.gogoanimes.fihttps',
+      },
+      {
+        protocol: 'https',
+        hostname: 'ww9.gogoanimes.fihttps',
       },
       {
         protocol: 'https',

@@ -91,7 +91,7 @@ export default function RootLayout({ children }) {
         </Script>
       </head>
       <body
-        className={`font-sans antialiased bg-gray-900 text-white ${inter.className}`}
+        className={`bg-[url('/bg_image.png')] bg-gray-800 bg-cover bg-center bg-fixed font-sans antialiased text-white ${inter.className}`}
       >
         <WebStoreProvider>
           <div>
