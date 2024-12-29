@@ -1,10 +1,11 @@
 import axios from "axios";
 import cheerio from "cheerio";
+const puppeteer = require("puppeteer");
 import connectToDatabase from "@/lib/mongodb";
 import { Contents } from "@/models/scrapeSchema";
 
-const BASE_URL = "https://vegamovies.nz/page/";
-const BASE_URL2 = "https://luxmovies.live/page/";
+const BASE_URL = "https://vegamovies.st/page/";
+const BASE_URL2 = "https://rogmovies.com/page/";
 
 const scrapeCode = async (url) => {
   try {
@@ -48,7 +49,6 @@ const scrapeImdbDetails = async (url, resultsText) => {
     const imdbRatingText = $("div.eWQwwe div.kFvAju");
     const rating = imdbRatingText.find("div.czkfBq").first().text();
     const votes = imdbRatingText.find("div.gUihYJ").first().text();
-
     imdbDetails.imdbRating.rawRating = imdbRatingText.first().text();
     imdbDetails.imdbRating.rating = rating.replace("/10", "");
     imdbDetails.imdbRating.votes = votes;
@@ -169,38 +169,78 @@ function extractSearchableContent(contentTextArray) {
   return { search: searchableContent, releaseYear: findContent.year };
 }
 
+async function downloadLinkPage(linkUrl) {
+  try {
+    const response = await axios.get(linkUrl);
+    const $ = cheerio.load(response.data);
+
+    const entryContent = $("div.entry-content").html();
+    if (!entryContent) {
+      console.log(`Content element not found for link URL: ${linkUrl}`);
+      return null;
+    }
+
+    return entryContent;
+  } catch (error) {
+    console.error(`Error processing download link URL: ${linkUrl}`, error.message);
+    return null;
+  }
+}
+
+async function scrapeDynamicImageUrls(url) {
+  let browser;
+  try {
+    browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.goto(url, { waitUntil: "networkidle2" });
+
+    const imageUrls = await page.evaluate(() => {
+      return Array.from(document.querySelectorAll("div.entry-content img"))
+        .map((img) => {
+          const imgSrc = img.getAttribute("src");
+          const imgDataSrc = img.getAttribute("data-src");
+          return imgDataSrc || imgSrc;
+        })
+        .filter(Boolean);
+    });
+
+    return imageUrls;
+  } catch (error) {
+    console.error(`Error scraping dynamic image URLs for ${url}, error.message`);
+    return [];
+  } finally {
+    if (browser) await browser.close();
+  }
+}
+
 async function processArticle(article) {
   const { url, title, image } = article;
+
   try {
     const response = await axios.get(url);
     const $ = cheerio.load(response.data);
 
     const contentElement = $("div.entry-content");
     if (!contentElement.length) {
-      console.log("Content element not found for article:", title);
+      console.log(`Content element not found for article: ${title}`);
       return;
     }
-
-    const imgDataLazySrcValues = contentElement
-      .find("p img")
-      .map((_, elem) => $(elem).attr("data-lazy-src"))
-      .get();
 
     const slug = title
       .replace(/[^\w\s]/g, "")
       .replace(/\s+/g, "_")
       .toLowerCase();
 
+    const imgUrls = await scrapeDynamicImageUrls(url);
+
     const contentTextArray = contentElement
       .find("p")
       .map((_, e) => $(e).text().toLowerCase())
       .get();
 
-    contentElement.find("p:has(img)").remove();
-
     const content = contentElement
       .html()
-      .replace(/Vegamovies/g, (match, offset, input) => {
+      ?.replace(/Vegamovies/g, (match, offset, input) => {
         const srcIndex = input.lastIndexOf('src="', offset);
 
         if (srcIndex === -1 || input.indexOf('"', srcIndex + 5) < offset) {
@@ -208,7 +248,7 @@ async function processArticle(article) {
         } else {
           return match;
         }
-      });
+      }) || "";
 
     const searchableContent = extractSearchableContent(contentTextArray);
     const imdbData = await getIMDbDetails(
@@ -218,21 +258,48 @@ async function processArticle(article) {
         .toLowerCase()
     );
 
+    const downloadLinkPromises = contentElement
+      .find("p")
+      .map(async function () {
+        try {
+          const paragraphText = $(this).text().trim().toLowerCase();
+
+          if (/download( now)?|episode( wise)?|batch\/?zip|batch|zip/i.test(paragraphText)) {
+            const downloadLink = $(this).find("a").attr("href");
+
+            if (/^https?:\/\//i.test(downloadLink)) {
+              const processedLink = await downloadLinkPage(downloadLink);
+              return processedLink;
+            }
+          }
+          return null;
+        } catch (error) {
+          console.error("Error processing a download link:", error.message);
+          return null;
+        }
+      })
+      .get();
+
+    const downloadableLinksHtml = (
+      await Promise.all(downloadLinkPromises)
+    ).filter(Boolean);
+
     const releaseDate = await releasedDate(imdbData);
 
     await updateOrCreateDatabaseEntry({
       title: title || null,
       url: url || null,
       image: image || null,
+      downloadableLinksHtml: downloadableLinksHtml || null,
       slug: slug || null,
       content: content || null,
-      imgDataLazySrcValues: imgDataLazySrcValues || null,
+      imgUrls: imgUrls || null,
       imdbData: imdbData || null,
       releaseDate: releaseDate || null,
       releaseYear: searchableContent.releaseYear || null,
     });
   } catch (error) {
-    console.log("Error processing article:", error.message);
+    console.error(`Error processing article for URL: ${url}`, error.message);
   }
 }
 
@@ -265,15 +332,21 @@ async function getIMDbDetails(searchableContent) {
   }
 }
 
+let insertedPagesCount = 0; // Counter for tracking inserted pages
+
+let articlesToInsert = []; // Array to collect articles for batch insert
+
+// Function to update or create database entry with batch processing and check for existing entries
 async function updateOrCreateDatabaseEntry({
   url,
   title,
   image,
+  downloadableLinksHtml,
   slug,
   content,
   releaseYear,
   releaseDate,
-  imgDataLazySrcValues,
+  imgUrls,
   imdbData,
 }) {
   try {
@@ -281,24 +354,59 @@ async function updateOrCreateDatabaseEntry({
       title,
       url,
       image,
+      downloadableLinksHtml,
       slug,
       content,
       releaseYear: releaseYear || null,
       releaseDate: releaseDate || null,
-      contentSceens: imgDataLazySrcValues,
+      contentSceens: imgUrls,
       imdbDetails: imdbData || null,
     };
 
+    // Check if the article already exists based on the slug
     const existingArticle = await Contents.findOne({ slug });
+
     if (existingArticle) {
+      // If the article already exists, update it
       await Contents.updateOne({ slug }, updateData);
+      console.log(`Article with slug ${slug} updated`);
     } else {
-      await Contents.create(updateData);
+      // If the article does not exist, add it to the collection for batch insertion
+      articlesToInsert.push(updateData);
     }
+
+    // Perform batch insert when threshold is met (e.g., 50 articles)
+    if (articlesToInsert.length >= 50) {
+      await Contents.insertMany(articlesToInsert); // Bulk insert all collected data
+      console.log('Inserted batch of new articles');
+      articlesToInsert = []; // Clear the array after the batch insert
+    }
+
   } catch (error) {
     console.log("Error updating/creating database entry:", error.message);
   }
 }
+
+// Inside finalizeBatchInsert, return the number of inserted pages
+async function finalizeBatchInsert() {
+  try {
+    // Example: Let's assume articlesToInsert is your array of articles to insert
+    const insertedCount = articlesToInsert.length;
+    if (insertedCount > 0) {
+      // Insert articles into the database (use your existing insertion logic)
+      await Contents.insertMany(articlesToInsert);
+      articlesToInsert.length = 0; // Clear the array after inserting
+
+      return insertedCount; // Return the number of inserted pages
+    } else {
+      return 0; // No articles to insert
+    }
+  } catch (error) {
+    console.log("Error during batch insertion:", error.message);
+    return 0;
+  }
+}
+
 
 async function scrapePage(pageNumber, site) {
   const url = `${site}${pageNumber}/`;
@@ -313,9 +421,13 @@ async function scrapePage(pageNumber, site) {
     const $1 = cheerio.load(response1.data);
 
     $1("article.post-item").each((index, element) => {
-      const title = $1(element).find("h3").text();
+      const title = $1(element).find("div.listing-content a").text();
       const articleUrl = $1(element).find("a").attr("href");
-      const image = $1(element).find("img").attr("data-src");
+      const imageDataSrc = $1(element)
+        .find("div.blog-pic img")
+        .attr("data-src");
+      const imageSrc = $1(element).find("div.blog-pic img").attr("src");
+      const image = imageDataSrc !== undefined ? imageDataSrc : imageSrc;
       console.log(image);
       site1Articles.push({ title, url: articleUrl, image });
     });
@@ -326,9 +438,13 @@ async function scrapePage(pageNumber, site) {
       const $2 = cheerio.load(response2.data);
 
       $2("article.post-item").each((index, element) => {
-        const title = $2(element).find("h3").text();
+        const title = $2(element).find("div.listing-content a").text();
         const articleUrl = $2(element).find("a").attr("href");
-        const image = $2(element).find("img").attr("data-src");
+        const imageDataSrc = $1(element)
+          .find("div.blog-pic img")
+          .attr("data-src");
+        const imageSrc = $1(element).find("div.blog-pic img").attr("src");
+        const image = imageDataSrc !== undefined ? imageDataSrc : imageSrc;
         console.log(image);
         site2Articles.push({ title, url: articleUrl, image });
       });
@@ -354,26 +470,47 @@ async function scrapePage(pageNumber, site) {
 }
 
 async function processPages() {
-  const site_1_starting_page = 100;
+  const site_1_starting_page = 553;
   const pageNumbers = Array.from(
-    { length: 100 },
+    { length: 563 },
     (_, i) => site_1_starting_page - i
   );
 
-  for (const pageNumber of pageNumbers) {
-    await scrapePage(pageNumber, BASE_URL);
+  const batchSize = 10; // Number of pages to scrape concurrently
+  for (let i = 0; i < pageNumbers.length; i += batchSize) {
+    const batch = pageNumbers.slice(i, i + batchSize);
+    
+    // Scrape the batch concurrently and wait for them to complete
+    await Promise.all(
+      batch.map(async (pageNumber) => {
+        await scrapePage(pageNumber, BASE_URL);
+      })
+    );
+    
+    // After each batch, call finalizeBatchInsert to insert the data
+    const insertedCount = await finalizeBatchInsert(); // Insert any remaining articles
+
+    // Log the number of pages inserted
+    insertedPagesCount += insertedCount;
+    console.log(`Inserted pages so far: ${insertedPagesCount}`);
   }
 }
+
 
 async function main() {
   try {
     await connectToDatabase();
+
+    console.log("Starting scraping process...");
     await processPages();
+
     console.log("Scraping and processing completed.");
   } catch (error) {
-    console.log("Error:", error.message);
-    console.log("Error occurred during scraping.");
+    console.error("Error during scraping process:", error.message);
+  } finally {
+    await closeBrowser(); // Ensure Puppeteer browser is closed
   }
 }
 
 main();
+

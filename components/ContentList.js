@@ -102,24 +102,27 @@ const ContentList = ({ contents }) => {
   };
 
   return (
-    <div>
-      <div>
+    <>
+    {!contents ? <div className="flex justify-center items-center h-screen">
+          <div className="animate-pulse bg-white h-20 w-20 rounded-full"></div>
+        </div>
+        : ""}
         <div className="grid grid-cols-2 mt-4 gap-2 llg:gap-4 xs:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 overflow-hidden">
           {contents[0].data.map((element, index) => (
             <Link
               key={index + 1}
               href={`/data/${element.slug}`}
               onClick={showLoading}
-              className="p-[2%] hover:scale-110 "
+              className="hover:scale-95 border-solid border-2 border-yellow-600 rounded-lg"
             >
-              <div className="to-black relative overflow-hidden rounded-lg shadow-lg cursor-pointer transition-transform duration-300 ease-in-out ">
+              <div className="to-black relative overflow-hidden  shadow-lg cursor-pointer transition-transform duration-300 ease-in-out rounded-t-lg">
                 <div className="relative overflow-hidden flex items-center justify-center">
                   <Image
                     width={144}
                     height={144}
                     src={getImageSource(element)}
                     alt={element.title.replace(/Download/, "").trim()}
-                    className="object-cover hover:scale-110 overflow-hidden rounded-lg -mt-[20%] w-full h-full"
+                    className="object-cover overflow-hidden -mt-[20%] w-full h-full"
                     priority={index < 4}
                     style={{
                       clipPath: "polygon(0 10%, 100% 10%, 100% 100%, 0% 100%)",
@@ -162,9 +165,8 @@ const ContentList = ({ contents }) => {
               </div>
             </Link>
           ))}
-        </div>
-      </div>
-    </div>
+        </div>        
+    </>
   );
 };
 

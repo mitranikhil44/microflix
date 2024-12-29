@@ -38,5 +38,5 @@ const contentSchema = new Schema({
 
 
 export const Contents =
-    mongoose.models.contents ||
-    mongoose.model("contents", contentSchema);
+    mongoose.models.contents_twos ||
+    mongoose.model("contents_twos", contentSchema);
