@@ -507,8 +507,6 @@ async function main() {
     console.log("Scraping and processing completed.");
   } catch (error) {
     console.error("Error during scraping process:", error.message);
-  } finally {
-    await closeBrowser(); // Ensure Puppeteer browser is closed
   }
 }
 
