@@ -433,7 +433,7 @@ async function scrapePage(pageNumber, site) {
     });
     site1Articles.reverse();
 
-    if (pageNumber <= 304) {
+    if (pageNumber <= 310) {
       const response2 = await axios.get(url2);
       const $2 = cheerio.load(response2.data);
 
@@ -470,7 +470,7 @@ async function scrapePage(pageNumber, site) {
 }
 
 async function processPages() {
-  const site_1_starting_page = 553;
+  const site_1_starting_page = 563;
   const pageNumbers = Array.from(
     { length: 563 },
     (_, i) => site_1_starting_page - i

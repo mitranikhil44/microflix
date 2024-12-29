@@ -41,7 +41,6 @@ let fullContentHTML =
   "";
 
 
-  // Remove specific HTML blocks using regex
   fullContentHTML = fullContentHTML
   // Remove the <img> element
   .replace(
@@ -57,7 +56,13 @@ let fullContentHTML =
   .replace(
     /<div class="post-inner post-hover"[^>]*style="padding: 30px 90px 0 90px;"[^>]*><\/div>/g,
     ""
+  )
+   // Remove <p> tags that contain <img> tags
+   .replace(
+    /<p[^>]*>.*?<img[^>]*>.*?<\/p>/g,
+    ""
   );
+
 
   
   // Replace "VegaMovies" and similar cases with "Microflix"
