@@ -172,17 +172,25 @@ function extractSearchableContent(contentTextArray) {
 async function downloadLinkPage(linkUrl) {
   try {
     const response = await axios.get(linkUrl);
+
+    // Load HTML into Cheerio
     const $ = cheerio.load(response.data);
 
+    // Extract content from possible containers
     const entryContent = $("div.entry-content").html();
-    if (!entryContent) {
-      console.log(`Content element not found for link URL: ${linkUrl}`);
+    const entryInner = $("div.entry-inner").html();
+
+    // Determine which content to use
+    const content = entryContent || entryInner;
+
+    if (!content) {
+      console.log(`No relevant content found for URL: ${linkUrl}`);
       return null;
     }
 
-    return entryContent;
+    return content;
   } catch (error) {
-    console.error(`Error processing download link URL: ${linkUrl}`, error.message);
+    console.error(`Error fetching page content for URL: ${linkUrl}`, error.message);
     return null;
   }
 }
