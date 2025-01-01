@@ -418,8 +418,8 @@ async function scrapePage(pageNumber) {
 
 // Process pages in batches of 10
 async function processPages() {
-  const site_1_starting_page = 99;
-  const pageNumbers = Array.from({ length: 99 }, (_, i) => site_1_starting_page - i);
+  const site_1_starting_page = 105;
+  const pageNumbers = Array.from({ length: 105 }, (_, i) => site_1_starting_page - i);
 
   const batchSize = 10; // Number of pages to scrape in a batch
   for (let i = 0; i < pageNumbers.length; i += batchSize) {
