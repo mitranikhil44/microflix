@@ -329,50 +329,67 @@ async function scrapeLinkData(url) {
   }
 }
 
+let insertedPagesCount = 0; // Counter for tracking inserted pages
+let articlesToInsert = []; // Array to collect articles for batch insert
+
+// Function to update or create database entry with batch processing
 async function updateOrCreateDatabaseEntry({
   title,
+  url,
   image,
+  contentLinkData,
   slug,
   content,
-  contentLinkData,
-  imdbData,
-  releaseDate,
-  updateData,
   releaseYear,
+  releaseDate,
+  imdbData,
 }) {
   try {
+    const updateData = {
+      title,
+      url,
+      image,
+      contentLinkData,
+      slug,
+      content,
+      releaseYear: releaseYear || null,
+      releaseDate: releaseDate || null,
+      imdbDetails: imdbData || null,
+    };
+
+    // Check if the article already exists
     const existingArticle = await Anime_Contents.findOne({ slug });
 
     if (existingArticle) {
-      await Anime_Contents.updateOne(
-        { slug },
-        {
-          title,
-          image,
-          slug,
-          content,
-          contentLinkData,
-          updateData,
-          releaseDate,
-          imdbDetails: imdbData || existingArticle.imdbDetails,
-          releaseYear: releaseYear || existingArticle.releaseYear,
-        }
-      );
+      // If exists, update the entry
+      await Anime_Contents.updateOne({ slug }, updateData);
+      console.log(`Article with slug ${slug} updated`);
     } else {
-      await Anime_Contents.create({
-        title,
-        image,
-        slug,
-        content,
-        contentLinkData,
-        updateData,
-        releaseDate,
-        imdbDetails: imdbData || null,
-        releaseYear: releaseYear || null,
-      });
+      // Collect new articles for batch insertion
+      articlesToInsert.push(updateData);
+    }
+
+    // Perform batch insert when the threshold is met
+    if (articlesToInsert.length >= 50) {
+      await Anime_Contents.insertMany(articlesToInsert); // Bulk insert
+      console.log(`Inserted batch of new articles`);
+      articlesToInsert = []; // Clear the array after batch insert
     }
   } catch (error) {
     console.error("Error updating/creating database entry:", error.message);
+  }
+}
+
+// Finalize batch insert after all pages are processed
+async function finalizeBatchInsert() {
+  try {
+    if (articlesToInsert.length > 0) {
+      await Anime_Contents.insertMany(articlesToInsert); // Bulk insert
+      console.log(`Final batch inserted with ${articlesToInsert.length} articles`);
+      articlesToInsert = []; // Clear the array
+    }
+  } catch (error) {
+    console.error("Error during batch insertion:", error.message);
   }
 }
 
@@ -399,56 +416,41 @@ async function scrapePage(pageNumber) {
   }
 }
 
+// Process pages in batches of 10
 async function processPages() {
-  const site_1_starting_page = 151; // Starting page number
-  const totalPages = 563; // Total number of pages to scrape
-  const batchSize = 10; // Number of pages to scrape concurrently
+  const site_1_starting_page = 99;
+  const pageNumbers = Array.from({ length: 99 }, (_, i) => site_1_starting_page - i);
 
-  // Generate the array of page numbers to scrape
-  const pageNumbers = Array.from(
-    { length: totalPages },
-    (_, i) => site_1_starting_page - i
-  );
-
-  let insertedPagesCount = 0; // Track the number of pages inserted
-
+  const batchSize = 10; // Number of pages to scrape in a batch
   for (let i = 0; i < pageNumbers.length; i += batchSize) {
     const batch = pageNumbers.slice(i, i + batchSize);
 
     // Scrape the batch concurrently
     await Promise.all(
       batch.map(async (pageNumber) => {
-        try {
-          await scrapePage(pageNumber, BASE_URL);
-        } catch (error) {
-          console.error(`Error scraping page ${pageNumber}:`, error.message);
-        }
+        await scrapePage(pageNumber);
       })
     );
 
-    // Finalize batch insert and log progress
-    try {
-      const insertedCount = await finalizeBatchInsert();
+    // Finalize batch insert for this set of scraped data
+    const insertedCount = articlesToInsert.length;
+    if (insertedCount > 0) {
+      await finalizeBatchInsert();
       insertedPagesCount += insertedCount;
       console.log(`Inserted pages so far: ${insertedPagesCount}`);
-    } catch (error) {
-      console.error("Error during batch insertion:", error.message);
     }
   }
-
-  console.log(`Scraping complete. Total pages inserted: ${insertedPagesCount}`);
 }
 
-
+// Start the scraping process
 async function main() {
   await connectToDatabase();
 
   try {
     await processPages();
-    console.log("Scraping and processing completed.");
+    console.log(`Scraping and processing completed. Total pages inserted: ${insertedPagesCount}`);
   } catch (error) {
     console.error("Error:", error.message);
-    console.log("Error occurred during scraping.");
   }
 }
 
