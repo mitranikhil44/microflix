@@ -203,14 +203,27 @@ async function scrapeDynamicImageUrls(url) {
     await page.goto(url, { waitUntil: "networkidle2" });
 
     const imageUrls = await page.evaluate(() => {
-      return Array.from(document.querySelectorAll("div.entry-content img"))
-        .map((img) => {
-          const imgSrc = img.getAttribute("src");
-          const imgDataSrc = img.getAttribute("data-src");
-          return imgDataSrc || imgSrc;
-        })
-        .filter(Boolean);
-    });
+      // Helper function to extract image URLs from a specific selector
+      const extractImages = (selector) => {
+        return Array.from(document.querySelectorAll(selector + " img"))
+          .map((img) => {
+            const imgSrc = img.getAttribute("src");
+            const imgDataSrc = img.getAttribute("data-src");
+            return imgDataSrc || imgSrc;
+          })
+          .filter(Boolean); // Remove null/undefined values
+      };
+    
+      // Attempt to extract images from `div.entry-content`
+      let images = extractImages("div.entry-content");
+    
+      // If no images found, fall back to `div#main-content`
+      if (images.length === 0) {
+        images = extractImages("div#main-content");
+      }
+    
+      return images;
+    });    
 
     return imageUrls;
   } catch (error) {
@@ -228,11 +241,15 @@ async function processArticle(article) {
     const response = await axios.get(url);
     const $ = cheerio.load(response.data);
 
-    const contentElement = $("div.entry-content");
-    if (!contentElement.length) {
-      console.log(`Content element not found for article: ${title}`);
-      return;
-    }
+    const contentElement = $("div.entry-content").length
+  ? $("div.entry-content")
+  : $("div#main-content");
+
+if (!contentElement.length) {
+  console.log(`Content element not found for article: ${title}`);
+  return;
+}
+
 
     const slug = title
       .replace(/[^\w\s]/g, "")
@@ -478,7 +495,7 @@ async function scrapePage(pageNumber, site) {
 }
 
 async function processPages() {
-  const site_1_starting_page = 563;
+  const site_1_starting_page = 151;
   const pageNumbers = Array.from(
     { length: 563 },
     (_, i) => site_1_starting_page - i
