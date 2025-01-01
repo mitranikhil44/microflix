@@ -400,16 +400,45 @@ async function scrapePage(pageNumber) {
 }
 
 async function processPages() {
-  const site_1_starting_page = 26;
+  const site_1_starting_page = 151; // Starting page number
+  const totalPages = 563; // Total number of pages to scrape
+  const batchSize = 10; // Number of pages to scrape concurrently
+
+  // Generate the array of page numbers to scrape
   const pageNumbers = Array.from(
-    { length: site_1_starting_page },
+    { length: totalPages },
     (_, i) => site_1_starting_page - i
   );
 
-  for (const pageNumber of pageNumbers) {
-    await scrapePage(pageNumber);
+  let insertedPagesCount = 0; // Track the number of pages inserted
+
+  for (let i = 0; i < pageNumbers.length; i += batchSize) {
+    const batch = pageNumbers.slice(i, i + batchSize);
+
+    // Scrape the batch concurrently
+    await Promise.all(
+      batch.map(async (pageNumber) => {
+        try {
+          await scrapePage(pageNumber, BASE_URL);
+        } catch (error) {
+          console.error(`Error scraping page ${pageNumber}:`, error.message);
+        }
+      })
+    );
+
+    // Finalize batch insert and log progress
+    try {
+      const insertedCount = await finalizeBatchInsert();
+      insertedPagesCount += insertedCount;
+      console.log(`Inserted pages so far: ${insertedPagesCount}`);
+    } catch (error) {
+      console.error("Error during batch insertion:", error.message);
+    }
   }
+
+  console.log(`Scraping complete. Total pages inserted: ${insertedPagesCount}`);
 }
+
 
 async function main() {
   await connectToDatabase();
