@@ -34,6 +34,10 @@ body {
   color: white;
 }
 
+.emoji{
+  width: 2%;
+  display: inline-block;
+}
 
 @keyframes background-animation {
   0% {

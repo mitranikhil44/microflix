@@ -101,7 +101,7 @@ const ContentList = ({ contents }) => {
               key={index + 1}
               href={`/anime_hub/${element.slug}/0/1`}
               onClick={showLoading}
-              className="p-[2%] hover:scale-110"
+              className="hover:scale-95 border-solid border-2 border-yellow-600 rounded-lg"
             >
               <div className="to-black relative overflow-hidden rounded-lg shadow-lg cursor-pointer transition-transform duration-300 ease-in-out">
                 <div className="relative overflow-hidden flex items-center justify-center">
@@ -110,7 +110,7 @@ const ContentList = ({ contents }) => {
                     height={144}
                     src={getImageSource(element)}
                     alt={element.title.replace(/Download/, "").trim()}
-                    className="object-cover hover:scale-110 overflow-hidden rounded-lg -mt-[20%] w-full h-full"
+                    className="object-cover overflow-hidden rounded-lg -mt-[20%] w-full h-full"
                     priority={index < 4}
                     style={{
                       clipPath: "polygon(0 10%, 100% 10%, 100% 100%, 0% 100%)",
