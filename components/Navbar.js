@@ -47,7 +47,7 @@ const Navbar = () => {
         <div className="xl:w-[1560px] sm:w-[75%] w-full mx-auto">
           <div className="flex justify-between items-center ">
             <Link href="/" className="flex items-center" onClick={pathname != "/" ? () => { showLoading(); scrollTop(); }:""}>
-              <div className="w-full">
+              <div className="w-[80%]">
                 <Image src={Logo} alt="Logo" />
               </div>
               <p className="text-yellow-600 text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl xxl:text-3xl ml-[1rem]">

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import StreamVideo from "@/components/StreamVideo";
 import ImdbDetails from "@/components/other/ImdbDetails";
+import Contact from "@/components/other/ContactUs";
 
 export default async function Anime_Content_Post({ params }) {
   const { slug, currentEpisode, currentPage } = params;
@@ -79,6 +80,7 @@ export default async function Anime_Content_Post({ params }) {
           />
         </div>
       </div>
+      <Contact/>
     </>
   );
 }

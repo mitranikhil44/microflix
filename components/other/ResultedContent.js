@@ -22,14 +22,17 @@ export default function PaginationButton({ totalPages, page, query }) {
           pageRangeDisplayed={1}
           marginPagesDisplayed={1}
           onPageChange={handlePageChange}
-          containerClassName="pagination flex justify-center items-center"
+          containerClassName="pagination flex justify-center items-center gap-2"
           activeClassName="active"
-          pageClassName="mx-2 cursor-pointer bg-gray-500 px-2 rounded-lg"
-          previousClassName="mx-2 cursor-pointer bg-gray-500 px-2 rounded-lg"
-          nextClassName="mx-2 cursor-pointer bg-gray-500 px-2 rounded-lg"
+          pageClassName="mx-1 cursor-pointer bg-gray-200 text-gray-800 font-medium hover:bg-yellow-500 hover:text-white px-4 py-2 rounded-full transition duration-300 ease-in-out"
+          previousClassName="mx-1 cursor-pointer bg-blue-500 text-white font-medium hover:bg-blue-700 px-4 py-2 rounded-full transition duration-300 ease-in-out"
+          nextClassName="mx-1 cursor-pointer bg-blue-500 text-white font-medium hover:bg-blue-700 px-4 py-2 rounded-full transition duration-300 ease-in-out"
           previousLabel="Previous"
           nextLabel="Next"
-          breakClassName="..."
+          breakLabel="..."
+          breakClassName="mx-1 text-blue-500 font-medium"
+          activeLinkClassName="bg-yellow-500 text-white"
+          disabledClassName="opacity-50 cursor-not-allowed"
           forcePage={currentPage}
         />
       )}

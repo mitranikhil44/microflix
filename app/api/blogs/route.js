@@ -8,7 +8,7 @@ export async function POST(req) {
     await connectToDatabase();
     const searchParams = req.nextUrl.searchParams;
     const page = parseInt(searchParams.get("page")) || 1;
-    const pageSize = parseInt(searchParams.get("page_size")) || 24;
+    const pageSize = parseInt(searchParams.get("page_size")) || 20;
     const category = searchParams.get("category") || "contents";
 
     const validCategories = [

@@ -77,7 +77,7 @@ function Contact() {
       >
         {isLoading && <LoadingSpinner />}
         <h2 className="text-2xl sm:text-3xl font-extrabold text-center mb-8">
-          Get in Touch with Us!
+          Feedback To Us!
         </h2>
         <p className="text-center mb-6 text-gray-300">
           Have any questions or want a quote? Fill out the form below, and our team will respond to you as soon as possible.

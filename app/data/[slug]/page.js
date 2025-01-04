@@ -1,5 +1,6 @@
 import Image from "next/image";
 import ImdbDetails from "@/components/other/ImdbDetails";
+import Contact from "@/components/other/ContactUs";
 
 // Utility function to handle text trimming
 const trimText = (text, length = 62) => (text || "").trimStart().slice(0, length) + "...";
@@ -89,7 +90,8 @@ export default async function Content_Post({ params }) {
           className="flex flex-col text-justify justify-center gap-y-2 py-6 px-4 text-xs xs:text-sm md:text-base contentClass text-gray-700 contentCode"
           dangerouslySetInnerHTML={createMarkup(fullContentHTML)}
         ></div>
-      </div>
+      </div>      
+      <Contact/>
     </>
   );
 }
