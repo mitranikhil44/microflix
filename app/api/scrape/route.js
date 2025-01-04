@@ -46,9 +46,17 @@ const scrapeImdbDetails = async (url, resultsText) => {
       imdbDetails.imdbPosterLink = srcsetArray;
     }
 
-    const imdbRatingText = $("div.eWQwwe div.kFvAju");
-    const rating = imdbRatingText.find("div.czkfBq").first().text();
-    const votes = imdbRatingText.find("div.gUihYJ").first().text();
+    const imdbRatingText = $("div.sc-d541859f-0");
+    const rating1 = imdbRatingText.find("div.czkfBq").first().text();
+    const rating2 = imdbRatingText.find("div.kxphVf").first().text();
+    const rating3 = imdbRatingText.find("span.sc-d541859f-1").first().text();
+    const votes1 = imdbRatingText.find("div.gUihYJ").first().text();
+    const votes2 = imdbRatingText.find("div.dwhNqC").first().text();
+    const votes3 = imdbRatingText.find("div.sc-d541859f-3").first().text();
+
+    let rating = rating3?.trim() || rating2?.trim() || rating1?.trim() || "N/A";
+    let votes = votes3?.trim() || votes2?.trim() || votes1?.trim() || "N/A";
+
     imdbDetails.imdbRating.rawRating = imdbRatingText.first().text();
     imdbDetails.imdbRating.rating = rating.replace("/10", "");
     imdbDetails.imdbRating.votes = votes;
@@ -140,32 +148,39 @@ const searchIMDb = async (query) => {
   }
 };
 
-function extractSearchableContent(contentTextArray) {
+function extractSearchableContent(contentText) {
   const findContent = {
     name: "",
     year: "",
   };
 
-  contentTextArray.forEach((e) => {
-    const movieNameMatch = e.match(
-      /(?:movie|show|series|full)\s*name:\s*(.*)/i
-    );
-    const releaseYearMatch = e.match(/(?:released|release)\s*year:\s*(\d{4})/i);
+  // Remove HTML tags and trim the content
+  const sanitizedContent = contentText.replace(/<\/?[^>]+(>|$)/g, "").trim();
 
-    if (movieNameMatch) {
-      findContent.name = movieNameMatch[1].trim();
-    }
+  // Regex to match movie name and release year
+  const movieNameMatch = sanitizedContent.match(
+    /(?:movie|show|series|full)\s*name:\s*([^\n\r]+)/i
+  );
+  const releaseYearMatch = sanitizedContent.match(
+    /(?:released|release)\s*year:\s*(\d{4})/i
+  );
 
-    if (releaseYearMatch) {
-      findContent.year = releaseYearMatch[1].trim();
-    }
-  });
+  // Extract and trim matches
+  if (movieNameMatch) {
+    findContent.name = movieNameMatch[1].trim();
+  }
 
+  if (releaseYearMatch) {
+    findContent.year = releaseYearMatch[1].trim();
+  }
+
+  // Log a warning if no matches are found
   if (!findContent.name && !findContent.year) {
     console.log("No match found for Movie Name and Released Year");
   }
 
-  const searchableContent = findContent.name + " " + findContent.year;
+  // Combine name and year for searchable content
+  const searchableContent = `${findContent.name} ${findContent.year}`.trim();
   return { search: searchableContent, releaseYear: findContent.year };
 }
 
@@ -195,31 +210,31 @@ function extractSearchableContent(contentTextArray) {
 //   }
 // }
 
-async function scrapeDynamicImageUrls(url) {
-  let browser;
-  try {
-    browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    await page.goto(url, { waitUntil: "networkidle2" });
+// async function scrapeDynamicImageUrls(url) {
+//   let browser;
+//   try {
+//     browser = await puppeteer.launch();
+//     const page = await browser.newPage();
+//     await page.goto(url, { waitUntil: "networkidle2" });
 
-    const imageUrls = await page.evaluate(() => {
-      return Array.from(document.querySelectorAll("div.entry-content img"))
-        .map((img) => {
-          const imgSrc = img.getAttribute("src");
-          const imgDataSrc = img.getAttribute("data-src");
-          return imgDataSrc || imgSrc;
-        })
-        .filter(Boolean);
-    });
+//     const imageUrls = await page.evaluate(() => {
+//       return Array.from(document.querySelectorAll("div.post-inner img"))
+//         .map((img) => {
+//           const imgSrc = img.getAttribute("src");
+//           const imgDataSrc = img.getAttribute("srcset");
+//           return imgDataSrc || imgSrc;
+//         })
+//         .filter(Boolean);
+//     });
 
-    return imageUrls;
-  } catch (error) {
-    console.error(`Error scraping dynamic image URLs for ${url}, error.message`);
-    return [];
-  } finally {
-    if (browser) await browser.close();
-  }
-}
+//     return imageUrls;
+//   } catch (error) {
+//     console.error(`Error scraping dynamic image URLs for ${url}, error.message`);
+//     return [];
+//   } finally {
+//     if (browser) await browser.close();
+//   }
+// }
 
 async function processArticle(article) {
   const { url, title, image } = article;
@@ -228,41 +243,36 @@ async function processArticle(article) {
     const response = await axios.get(url);
     const $ = cheerio.load(response.data);
 
-    const contentElement = $("div.entry-content").length
-  ? $("div.entry-content")
-  : $("div#main-content");
+    // Extract content from possible containers
+    const entryContent = $("div.entry-content").html();
+    const entryInner = $("div.entry-inner").html();
+    const postInner = $("div.post-inner").html();
 
-if (!contentElement.length) {
-  console.log(`Content element not found for article: ${title}`);
-  return;
-}
+    // Determine which content to use
+    const rawContent = entryContent || entryInner || postInner;
 
+    if (!rawContent) {
+      console.log(`Content element not found for article: ${title}`);
+      return;
+    }
 
     const slug = title
       .replace(/[^\w\s]/g, "")
       .replace(/\s+/g, "_")
       .toLowerCase();
 
-    const imgUrls = await scrapeDynamicImageUrls(url);
+    // Wrap the raw content in a cheerio object
+    const contentElement = $(rawContent);
 
-    const contentTextArray = contentElement
-      .find("p")
-      .map((_, e) => $(e).text().toLowerCase())
-      .get();
+    // Extract text content and convert to lowercase
+    const contentText = contentElement.text().toLowerCase();
 
-    const content = contentElement
-      .html()
-      ?.replace(/Vegamovies/g, (match, offset, input) => {
-        const srcIndex = input.lastIndexOf('src="', offset);
+    // Replace occurrences of "Vegamovies" with "Microflix" in the content
+    const content = rawContent.replace(/Vegamovies/g, "Microflix");
 
-        if (srcIndex === -1 || input.indexOf('"', srcIndex + 5) < offset) {
-          return "Microflix";
-        } else {
-          return match;
-        }
-      }) || "";
+    // Extract searchable content
+    const searchableContent = extractSearchableContent(contentText);
 
-    const searchableContent = extractSearchableContent(contentTextArray);
     const imdbData = await getIMDbDetails(
       searchableContent.search
         .replace(/[^\w\s]/g, "")
@@ -270,42 +280,15 @@ if (!contentElement.length) {
         .toLowerCase()
     );
 
-    // const downloadLinkPromises = contentElement
-    //   .find("p")
-    //   .map(async function () {
-    //     try {
-    //       const paragraphText = $(this).text().trim().toLowerCase();
-
-    //       if (/download( now)?|episode( wise)?|batch\/?zip|batch|zip/i.test(paragraphText)) {
-    //         const downloadLink = $(this).find("a").attr("href");
-
-    //         if (/^https?:\/\//i.test(downloadLink)) {
-    //           const processedLink = await downloadLinkPage(downloadLink);
-    //           return processedLink;
-    //         }
-    //       }
-    //       return null;
-    //     } catch (error) {
-    //       console.error("Error processing a download link:", error.message);
-    //       return null;
-    //     }
-    //   })
-    //   .get();
-
-    // const downloadableLinksHtml = (
-    //   await Promise.all(downloadLinkPromises)
-    // ).filter(Boolean);
-
     const releaseDate = await releasedDate(imdbData);
 
+    // save the data in the database
     await updateOrCreateDatabaseEntry({
       title: title || null,
       url: url || null,
       image: image || null,
-      // downloadableLinksHtml: downloadableLinksHtml || null,
       slug: slug || null,
       content: content || null,
-      imgUrls: imgUrls || null,
       imdbData: imdbData || null,
       releaseDate: releaseDate || null,
       releaseYear: searchableContent.releaseYear || null,
@@ -314,6 +297,7 @@ if (!contentElement.length) {
     console.error(`Error processing article for URL: ${url}`, error.message);
   }
 }
+
 
 async function releasedDate(imdbData) {
   let releaseDate = null;
@@ -358,7 +342,7 @@ async function updateOrCreateDatabaseEntry({
   content,
   releaseYear,
   releaseDate,
-  imgUrls,
+  // imgUrls,
   imdbData,
 }) {
   try {
@@ -371,7 +355,7 @@ async function updateOrCreateDatabaseEntry({
       content,
       releaseYear: releaseYear || null,
       releaseDate: releaseDate || null,
-      contentSceens: imgUrls,
+      // contentSceens: imgUrls,
       imdbDetails: imdbData || null,
     };
 
@@ -390,10 +374,9 @@ async function updateOrCreateDatabaseEntry({
     // Perform batch insert when threshold is met (e.g., 50 articles)
     if (articlesToInsert.length >= 100) {
       await Contents.insertMany(articlesToInsert); // Bulk insert all collected data
-      console.log('Inserted batch of new articles');
+      console.log("Inserted batch of new articles");
       articlesToInsert = []; // Clear the array after the batch insert
     }
-
   } catch (error) {
     console.log("Error updating/creating database entry:", error.message);
   }
@@ -419,7 +402,6 @@ async function finalizeBatchInsert() {
   }
 }
 
-
 async function scrapePage(pageNumber, site) {
   const url = `${site}${pageNumber}/`;
   const url2 = `${BASE_URL2}${pageNumber}/`;
@@ -432,16 +414,26 @@ async function scrapePage(pageNumber, site) {
     const response1 = await axios.get(url);
     const $1 = cheerio.load(response1.data);
 
-    $1("article.post-item").each((index, element) => {
-      const title = $1(element).find("div.listing-content a").text();
-      const articleUrl = $1(element).find("a").attr("href");
-      const imageDataSrc = $1(element)
-        .find("div.blog-pic img")
-        .attr("data-src");
-      const imageSrc = $1(element).find("div.blog-pic img").attr("src");
-      const image = imageDataSrc !== undefined ? imageDataSrc : imageSrc;
+    $1("article").each((index, element) => {
+      const classValues = $1(element).attr("class");
+      const title = $1(element).find("h2.post-title a").text();
+      const articleUrl = $1(element).find("h2.post-title a").attr("href");
+      const imageDataSrc = $1(element).find("img").attr("data-src");
+      const imageSrcSet = $1(element).find("img").attr("srcset");
+      const imageSrc = $1(element).find("img").attr("src");
+
+      // Check for a valid image source in the prioritized order
+      const image =
+        imageSrc && imageSrc.startsWith("https://")
+          ? imageSrc
+          : imageDataSrc && imageDataSrc.startsWith("https://")
+          ? imageDataSrc
+          : imageSrcSet && imageSrcSet.startsWith("https://")
+          ? imageSrcSet
+          : null; // Default to null if none are valid
+
       console.log(image);
-      site1Articles.push({ title, url: articleUrl, image });
+      site1Articles.push({ title, url: articleUrl, image, classValues });
     });
     site1Articles.reverse();
 
@@ -449,14 +441,23 @@ async function scrapePage(pageNumber, site) {
       const response2 = await axios.get(url2);
       const $2 = cheerio.load(response2.data);
 
-      $2("article.post-item").each((index, element) => {
-        const title = $2(element).find("div.listing-content a").text();
-        const articleUrl = $2(element).find("a").attr("href");
-        const imageDataSrc = $1(element)
-          .find("div.blog-pic img")
-          .attr("data-src");
-        const imageSrc = $1(element).find("div.blog-pic img").attr("src");
-        const image = imageDataSrc !== undefined ? imageDataSrc : imageSrc;
+      $2("article").each((index, element) => {
+        const title = $2(element).find("h3.entry-title a").text();
+        const articleUrl = $2(element).find("h3.entry-title a").attr("href");
+        const imageDataSrc = $1(element).find("img").attr("data-src");
+        const imageSrcSet = $1(element).find("img").attr("srcset");
+        const imageSrc = $1(element).find("img").attr("src");
+
+        // Check for a valid image source in the prioritized order
+        const image =
+          imageSrc && imageSrc.startsWith("https://")
+            ? imageSrc
+            : imageDataSrc && imageDataSrc.startsWith("https://")
+            ? imageDataSrc
+            : imageSrcSet && imageSrcSet.startsWith("https://")
+            ? imageSrcSet
+            : null; // Default to null if none are valid
+
         console.log(image);
         site2Articles.push({ title, url: articleUrl, image });
       });
@@ -482,7 +483,7 @@ async function scrapePage(pageNumber, site) {
 }
 
 async function processPages() {
-  const site_1_starting_page = 564;
+  const site_1_starting_page = 308;
   const pageNumbers = Array.from(
     { length: 564 },
     (_, i) => site_1_starting_page - i
@@ -491,14 +492,14 @@ async function processPages() {
   const batchSize = 10; // Number of pages to scrape concurrently
   for (let i = 0; i < pageNumbers.length; i += batchSize) {
     const batch = pageNumbers.slice(i, i + batchSize);
-    
+
     // Scrape the batch concurrently and wait for them to complete
     await Promise.all(
       batch.map(async (pageNumber) => {
         await scrapePage(pageNumber, BASE_URL);
       })
     );
-    
+
     // After each batch, call finalizeBatchInsert to insert the data
     const insertedCount = await finalizeBatchInsert(); // Insert any remaining articles
 
@@ -507,7 +508,6 @@ async function processPages() {
     console.log(`Inserted pages so far: ${insertedPagesCount}`);
   }
 }
-
 
 async function main() {
   try {
@@ -523,4 +523,3 @@ async function main() {
 }
 
 main();
-

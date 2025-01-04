@@ -8,7 +8,7 @@ const contentSchema = new Schema({
     image: String,
     slug: String,
     content: String,
-    contentSceens: [String],
+    // contentSceens: [String],
     // downloadableLinksHtml: [String],
     imdbDetails: {
         imdbName: String,
