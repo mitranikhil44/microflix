@@ -3,7 +3,7 @@
 import Link from "next/link";
 import React, { useEffect } from "react";
 import Image from "next/image";
-import defaultLogo from "@/user_stuffs/logo.png";
+import defaultLogo from "@/public/logo2.png";
 import { useWebStore } from "@/context";
 
 const ContentList = ({ contents }) => {

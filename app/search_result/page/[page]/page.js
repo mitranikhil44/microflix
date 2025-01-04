@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import defaultLogo from "@/user_stuffs/logo.png";
+import defaultLogo from "@/public/logo2.png";
 import ResultedContent from "@/components/other/ResultedContent";
 import { useSearchParams } from "next/navigation";
 import { useWebStore } from "@/context";

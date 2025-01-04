@@ -4,7 +4,7 @@ const puppeteer = require("puppeteer");
 import connectToDatabase from "@/lib/mongodb";
 import { Contents } from "@/models/scrapeSchema";
 
-const BASE_URL = "https://vegamovies.st/page/";
+const BASE_URL = "https://vegamovies.ms/page/";
 const BASE_URL2 = "https://rogmovies.com/page/";
 
 const scrapeCode = async (url) => {
@@ -169,31 +169,31 @@ function extractSearchableContent(contentTextArray) {
   return { search: searchableContent, releaseYear: findContent.year };
 }
 
-async function downloadLinkPage(linkUrl) {
-  try {
-    const response = await axios.get(linkUrl);
+// async function downloadLinkPage(linkUrl) {
+//   try {
+//     const response = await axios.get(linkUrl);
 
-    // Load HTML into Cheerio
-    const $ = cheerio.load(response.data);
+//     // Load HTML into Cheerio
+//     const $ = cheerio.load(response.data);
 
-    // Extract content from possible containers
-    const entryContent = $("div.entry-content").html();
-    const entryInner = $("div.entry-inner").html();
+//     // Extract content from possible containers
+//     const entryContent = $("div.entry-content").html();
+//     const entryInner = $("div.entry-inner").html();
 
-    // Determine which content to use
-    const content = entryContent || entryInner;
+//     // Determine which content to use
+//     const content = entryContent || entryInner;
 
-    if (!content) {
-      console.log(`No relevant content found for URL: ${linkUrl}`);
-      return null;
-    }
+//     if (!content) {
+//       console.log(`No relevant content found for URL: ${linkUrl}`);
+//       return null;
+//     }
 
-    return content;
-  } catch (error) {
-    console.error(`Error fetching page content for URL: ${linkUrl}`, error.message);
-    return null;
-  }
-}
+//     return content;
+//   } catch (error) {
+//     console.error(`Error fetching page content for URL: ${linkUrl}`, error.message);
+//     return null;
+//   }
+// }
 
 async function scrapeDynamicImageUrls(url) {
   let browser;
@@ -270,31 +270,31 @@ if (!contentElement.length) {
         .toLowerCase()
     );
 
-    const downloadLinkPromises = contentElement
-      .find("p")
-      .map(async function () {
-        try {
-          const paragraphText = $(this).text().trim().toLowerCase();
+    // const downloadLinkPromises = contentElement
+    //   .find("p")
+    //   .map(async function () {
+    //     try {
+    //       const paragraphText = $(this).text().trim().toLowerCase();
 
-          if (/download( now)?|episode( wise)?|batch\/?zip|batch|zip/i.test(paragraphText)) {
-            const downloadLink = $(this).find("a").attr("href");
+    //       if (/download( now)?|episode( wise)?|batch\/?zip|batch|zip/i.test(paragraphText)) {
+    //         const downloadLink = $(this).find("a").attr("href");
 
-            if (/^https?:\/\//i.test(downloadLink)) {
-              const processedLink = await downloadLinkPage(downloadLink);
-              return processedLink;
-            }
-          }
-          return null;
-        } catch (error) {
-          console.error("Error processing a download link:", error.message);
-          return null;
-        }
-      })
-      .get();
+    //         if (/^https?:\/\//i.test(downloadLink)) {
+    //           const processedLink = await downloadLinkPage(downloadLink);
+    //           return processedLink;
+    //         }
+    //       }
+    //       return null;
+    //     } catch (error) {
+    //       console.error("Error processing a download link:", error.message);
+    //       return null;
+    //     }
+    //   })
+    //   .get();
 
-    const downloadableLinksHtml = (
-      await Promise.all(downloadLinkPromises)
-    ).filter(Boolean);
+    // const downloadableLinksHtml = (
+    //   await Promise.all(downloadLinkPromises)
+    // ).filter(Boolean);
 
     const releaseDate = await releasedDate(imdbData);
 
@@ -302,7 +302,7 @@ if (!contentElement.length) {
       title: title || null,
       url: url || null,
       image: image || null,
-      downloadableLinksHtml: downloadableLinksHtml || null,
+      // downloadableLinksHtml: downloadableLinksHtml || null,
       slug: slug || null,
       content: content || null,
       imgUrls: imgUrls || null,
@@ -353,7 +353,7 @@ async function updateOrCreateDatabaseEntry({
   url,
   title,
   image,
-  downloadableLinksHtml,
+  // downloadableLinksHtml,
   slug,
   content,
   releaseYear,
@@ -366,7 +366,7 @@ async function updateOrCreateDatabaseEntry({
       title,
       url,
       image,
-      downloadableLinksHtml,
+      // downloadableLinksHtml,
       slug,
       content,
       releaseYear: releaseYear || null,
@@ -388,7 +388,7 @@ async function updateOrCreateDatabaseEntry({
     }
 
     // Perform batch insert when threshold is met (e.g., 50 articles)
-    if (articlesToInsert.length >= 50) {
+    if (articlesToInsert.length >= 100) {
       await Contents.insertMany(articlesToInsert); // Bulk insert all collected data
       console.log('Inserted batch of new articles');
       articlesToInsert = []; // Clear the array after the batch insert
@@ -482,9 +482,9 @@ async function scrapePage(pageNumber, site) {
 }
 
 async function processPages() {
-  const site_1_starting_page = 151;
+  const site_1_starting_page = 564;
   const pageNumbers = Array.from(
-    { length: 563 },
+    { length: 564 },
     (_, i) => site_1_starting_page - i
   );
 

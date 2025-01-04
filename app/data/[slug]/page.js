@@ -30,25 +30,23 @@ export default async function Content_Post({ params }) {
     </div>
   ` : "";
 
-  const contentDownloadLinks = content.downloadableLinksHtml?.map(link => `${link} <hr>`) || [];
+  // const contentDownloadLinks = content.downloadableLinksHtml?.map(link => `${link} <hr>`) || [];
 
   let fullContentHTML = content.content?.slice(0, indexOfScreenshots + 55) 
   // + `
   //   <div class="text-center mt-8 space-y-4">${contentDownloadLinks.join("")}</div>
   // `
+  + screenshotsHTML
    + content.content?.slice(indexOfScreenshots + 50) || "";
 
   // Clean up unwanted content
-  fullContentHTML = fullContentHTML.replace(
-    /<span[^>]*>Keep Sharing Our Site with Your Friends <img[^>]*alt="🙂"[^>]*src="https:\/\/s\.w\.org\/images\/core\/emoji\/13\.0\.0\/svg\/1f642\.svg"[^>]*>&nbsp;<\/span>/g,
-    ""
-  ).replace(/VegaMovies\.To|VegaMovies|vegamovies/gi, "Microflix")
+  fullContentHTML = fullContentHTML.replace(/VegaMovies\.To|VegaMovies|vegamovies/gi, "Microflix")
     // Remove <img> tags if the src doesn't start with 'https://'
     .replace(/<img[^>]*src="(?!https:\/\/)[^"]+"[^>]*>/g, "");
 
   // Extract meta description from the content
   let extractedText = "";
-  if (indexOfStory !== -1 && indexOfScreenshots !== -1) {
+  if (indexOfStory !== -1 || indexOfScreenshots !== -1) {
     extractedText = data.slice(
       indexOfStory + `synopsis/plot:</span></h3><p>`.length - 2,
       indexOfScreenshots - `</p><h2 style="text-align: center;"><span style="color: #eef425;">`.length

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useWebStore } from "@/context";
-import defaultLogo from "@/user_stuffs/logo.png";
+import defaultLogo from "@/public/logo2.png";
 
 const ImdbDetails = ({ content }) => {
   const { setProgress, setIsLoading } = useWebStore();

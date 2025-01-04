@@ -3,7 +3,7 @@
 import Link from "next/link";
 import React, { useEffect } from "react";
 import Image from "next/image";
-import defaultLogo from "@/user_stuffs/logo.png";
+import defaultLogo from "@/public/logo2.png";
 import { useWebStore } from "@/context";
 
 const ContentList = ({ contents }) => {
@@ -57,9 +57,17 @@ const ContentList = ({ contents }) => {
   const getImageSource = (element) => {
     const image = element.image;
 
-    // If image is null or empty, return default logo
-    if (!image) {
-      return defaultLogo;
+    // If image is null, empty, or does not start with 'https://', return IMDb image or default logo
+    if (!image || !image.startsWith("https://")) {
+        if (element.imdbDetails && element.imdbDetails.imdbPosterLink) {
+            const posterLinks = element.imdbDetails.imdbPosterLink;
+            // Check if posterLinks is an array and not empty
+            if (Array.isArray(posterLinks) && posterLinks.length > 0) {
+                // Return the last poster link URL
+                return posterLinks[posterLinks.length - 1].url;
+            }
+        }
+        return defaultLogo;
     }
 
     const imageUrl = encodeURIComponent(image);
@@ -67,39 +75,40 @@ const ContentList = ({ contents }) => {
 
     // Check if IMDb details are available and contain poster links
     if (element.imdbDetails && element.imdbDetails.imdbPosterLink) {
-      const posterLinks = element.imdbDetails.imdbPosterLink;
-      // Check if posterLinks is an array and not empty
-      if (Array.isArray(posterLinks) && posterLinks.length > 0) {
-        // Return the last poster link URL
-        return posterLinks[posterLinks.length - 1].url;
-      }
+        const posterLinks = element.imdbDetails.imdbPosterLink;
+        // Check if posterLinks is an array and not empty
+        if (Array.isArray(posterLinks) && posterLinks.length > 0) {
+            // Return the last poster link URL
+            return posterLinks[posterLinks.length - 1].url;
+        }
     }
 
     // Check if element has a custom image
     if (proxyUrl) {
-      if (proxyUrl.includes("https://gogocdn.net")) {
-        return proxyUrl.replace("https://ww5.gogoanimes.fi", "");
-      }
-
-      // Handle vegamovies domain replacements
-      const vegamoviesPatterns = [
-        { old: "m.vegamovies.yt", new: "vegamovies.tw" },
-        { old: "vegamovies.yt", new: "vegamovies.tw" },
-        { old: "//vegamovies.mex.com", new: "https://vegamovies.tw" },
-      ];
-
-      for (const pattern of vegamoviesPatterns) {
-        if (proxyUrl.includes(pattern.old)) {
-          return proxyUrl.replace(pattern.old, pattern.new);
+        if (proxyUrl.includes("https://gogocdn.net")) {
+            return proxyUrl.replace("https://ww5.gogoanimes.fi", "");
         }
-      }
 
-      return proxyUrl;
+        // Handle vegamovies domain replacements
+        const vegamoviesPatterns = [
+            { old: "m.vegamovies.yt", new: "vegamovies.tw" },
+            { old: "vegamovies.yt", new: "vegamovies.tw" },
+            { old: "//vegamovies.mex.com", new: "https://vegamovies.tw" },
+        ];
+
+        for (const pattern of vegamoviesPatterns) {
+            if (proxyUrl.includes(pattern.old)) {
+                return proxyUrl.replace(pattern.old, pattern.new);
+            }
+        }
+
+        return proxyUrl;
     }
 
     // If no custom image or IMDb poster links available, return default logo
     return defaultLogo;
-  };
+};
+
 
   return (
     <>

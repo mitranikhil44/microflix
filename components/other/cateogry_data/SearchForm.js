@@ -16,78 +16,84 @@ const SearchForm = ({
   const router = useRouter();
 
   // Handle input changes
-  const handleInputChange = useCallback(async (e) => {
-    setIsLoading(true);
-    const newSearchTerm = e.target.value;
-    setSearchTerm(newSearchTerm);
-    fetchSuggestions(newSearchTerm);
-    setIsLoading(false);
-  }, [fetchSuggestions, setIsLoading, setSearchTerm]);
+  const handleInputChange = useCallback(
+    async (e) => {
+      setIsLoading(true);
+      const newSearchTerm = e.target.value;
+      setSearchTerm(newSearchTerm);
+      fetchSuggestions(newSearchTerm);
+      setIsLoading(false);
+    },
+    [fetchSuggestions, setIsLoading, setSearchTerm]
+  );
 
   // Handle form submission
-  const submit = useCallback(async (e) => {
-    setIsLoading(true);
-    e.preventDefault(); 
-    if (searchTerm.trim() !== "") {
-      await pushData();
-    }
-    setIsLoading(false);
-  }, [searchTerm, setIsLoading]);
+  const submit = useCallback(
+    async (e) => {
+      setIsLoading(true);
+      e.preventDefault();
+      if (searchTerm.trim() !== "") {
+        await pushData();
+      }
+      setIsLoading(false);
+    },
+    [searchTerm, setIsLoading]
+  );
 
   // Push data and navigate to results page
   const pushData = async () => {
     const queryString = `?query=${encodeURIComponent(searchTerm.trim())}`;
     await router.push(`/search_result${queryString}`);
-    setSearchTerm(""); 
-    closeModal(); 
-    setProgress(30); 
+    setSearchTerm("");
+    closeModal();
+    setProgress(30);
   };
 
   return (
-    <form onSubmit={submit} className="w-full xs:w-[70%] sm:w-[60%] lg:w-[50%] mx-auto">
-      <div className="relative mx-[2%] sm:m-0">
+    <form onSubmit={submit} className="w-full xs:w-3/4 sm:w-2/3 lg:w-1/2 mx-auto">
+      <div className="relative mx-4 sm:mx-0">
         <input
           type="text"
           value={searchTerm}
           onChange={handleInputChange}
-          placeholder="Search here"
-          className="w-full border border-gray-300 rounded-3xl py-[2%] px-[4%] smd:px-[3%] lg:py-[1%]"
+          placeholder="Search for your favorite content..."
+          className="w-full border border-gray-300 rounded-full py-3 px-5 text-gray-200 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-md transition"
         />
         <button
           type="submit"
-          className="cursor-pointer absolute top-[25%] smd:top-[28%] lg:top-[25%] right-[3%] hover:text-yellow-500"
+          className="absolute top-1/2 right-5 transform -translate-y-1/2 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
           aria-label="Search"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="18"
-            height="18"
+            width="20"
+            height="20"
             fill="currentColor"
             className="bi bi-search"
             viewBox="0 0 16 16"
           >
             <path
-              className="hover:text-yellow-600 text-white"
               d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"
             />
           </svg>
         </button>
       </div>
+
       {isModalOpen && (
         <Modal isOpen={isModalOpen} onClose={closeModal}>
-          <div className="max-h-[300px] overflow-y-auto">
+          <div className="max-h-72 overflow-y-auto bg-white shadow-lg rounded-md p-4">
             {Array.isArray(suggestions) && suggestions.length > 0 ? (
               suggestions.map((suggestion, index) => (
                 <button
                   key={index}
                   onClick={() => handleSuggestionClick(suggestion)}
-                  className="block w-full text-left py-2 px-4 hover:bg-gray-200"
+                  className="block w-full text-left py-2 px-4 text-gray-700 hover:bg-gray-200 rounded-md transition"
                 >
                   {suggestion}
                 </button>
               ))
             ) : (
-              <div className="p-4 text-center">No suggestions available</div>
+              <div className="p-4 text-center text-gray-500">No suggestions available</div>
             )}
           </div>
         </Modal>
