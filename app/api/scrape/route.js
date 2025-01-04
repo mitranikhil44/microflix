@@ -370,13 +370,6 @@ async function updateOrCreateDatabaseEntry({
       // If the article does not exist, add it to the collection for batch insertion
       articlesToInsert.push(updateData);
     }
-
-    // Perform batch insert when threshold is met (e.g., 50 articles)
-    if (articlesToInsert.length >= 100) {
-      await Contents.insertMany(articlesToInsert); // Bulk insert all collected data
-      console.log("Inserted batch of new articles");
-      articlesToInsert = []; // Clear the array after the batch insert
-    }
   } catch (error) {
     console.log("Error updating/creating database entry:", error.message);
   }
@@ -483,7 +476,7 @@ async function scrapePage(pageNumber, site) {
 }
 
 async function processPages() {
-  const site_1_starting_page = 308;
+  const site_1_starting_page = 554;
   const pageNumbers = Array.from(
     { length: 564 },
     (_, i) => site_1_starting_page - i
