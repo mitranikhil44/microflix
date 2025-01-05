@@ -476,7 +476,7 @@ async function scrapePage(pageNumber, site) {
 }
 
 async function processPages() {
-  const site_1_starting_page = 554;
+  const site_1_starting_page = 394;
   const pageNumbers = Array.from(
     { length: 564 },
     (_, i) => site_1_starting_page - i
