@@ -57,11 +57,11 @@ const SearchForm = ({
           value={searchTerm}
           onChange={handleInputChange}
           placeholder="Search for your favorite content..."
-          className="w-full border border-gray-300 rounded-full py-3 px-5 text-gray-200 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-md transition"
+          className="w-full border bg-white border-gray-500 rounded-full py-3 px-5 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-md transition"
         />
         <button
           type="submit"
-          className="absolute top-1/2 right-5 transform -translate-y-1/2 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
+          className="absolute top-1/2 right-0 transform -translate-y-1/2 bg-blue-500 text-white p-2.5 sm:p-3 rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
           aria-label="Search"
         >
           <svg

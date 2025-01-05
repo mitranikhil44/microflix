@@ -73,35 +73,8 @@ const SearchResult = () => {
   const getImageSource = (element) => {
     const image = element.image;
 
-    // If image is null or empty, return default logo
-    if (!image) {
-      return defaultLogo;
-    }
-
-    const imageUrl = encodeURIComponent(image);
-    const proxyUrl = `/api/image-proxy?url=${imageUrl}`;
-
-    
-    // Check if element has a custom image
-    if (proxyUrl) {
-      if (proxyUrl.includes("https://gogocdn.net")) {
-        return proxyUrl.replace("https://ww5.gogoanimes.fi", "");
-      }
-      
-      // Handle vegamovies domain replacements
-      const vegamoviesPatterns = [
-        { old: "m.vegamovies.yt", new: "vegamovies.tw" },
-        { old: "vegamovies.yt", new: "vegamovies.tw" },
-        { old: "//vegamovies.mex.com", new: "https://vegamovies.tw" },
-      ];
-      
-      for (const pattern of vegamoviesPatterns) {
-        if (proxyUrl.includes(pattern.old)) {
-          return proxyUrl.replace(pattern.old, pattern.new);
-        }
-      }
-      
-      // Check if IMDb details are available and contain poster links
+    // If image is null, empty, or does not start with 'https://', return IMDb image or default logo
+    if (!image || !image.startsWith("https://")) {
       if (element.imdbDetails && element.imdbDetails.imdbPosterLink) {
         const posterLinks = element.imdbDetails.imdbPosterLink;
         // Check if posterLinks is an array and not empty
@@ -110,33 +83,67 @@ const SearchResult = () => {
           return posterLinks[posterLinks.length - 1].url;
         }
       }
-      
+      return defaultLogo;
+    }
+
+    const imageUrl = encodeURIComponent(image);
+    const proxyUrl = `/api/image-proxy?url=${imageUrl}`;
+
+    // Check if IMDb details are available and contain poster links
+    if (element.imdbDetails && element.imdbDetails.imdbPosterLink) {
+      const posterLinks = element.imdbDetails.imdbPosterLink;
+      // Check if posterLinks is an array and not empty
+      if (Array.isArray(posterLinks) && posterLinks.length > 0) {
+        // Return the last poster link URL
+        return posterLinks[posterLinks.length - 1].url;
+      }
+    }
+
+    // Check if element has a custom image
+    if (proxyUrl) {
+      if (proxyUrl.includes("https://gogocdn.net")) {
+        return proxyUrl.replace("https://ww5.gogoanimes.fi", "");
+      }
+
+      // Handle vegamovies domain replacements
+      const vegamoviesPatterns = [
+        { old: "m.vegamovies.yt", new: "vegamovies.tw" },
+        { old: "vegamovies.yt", new: "vegamovies.tw" },
+        { old: "//vegamovies.mex.com", new: "https://vegamovies.tw" },
+      ];
+
+      for (const pattern of vegamoviesPatterns) {
+        if (proxyUrl.includes(pattern.old)) {
+          return proxyUrl.replace(pattern.old, pattern.new);
+        }
+      }
+
       return proxyUrl;
     }
 
     // If no custom image or IMDb poster links available, return default logo
     return defaultLogo;
-  };  
+  };
 
   // Transforms specific image URLs based on conditions
-  const transformImageUrl = (imageUrl) => {
-    if (imageUrl.includes("https://gogocdn.net")) {
-      return imageUrl.replace("https://ww5.gogoanimes.fi", "");
-    }
-    if (imageUrl.includes("m.vegamovies.yt")) {
-      return imageUrl.replace("m.vegamovies.yt", "vegamovies.ist");
-    }
-    if (imageUrl.includes("vegamovies.yt")) {
-      return imageUrl.replace("vegamovies.yt", "vegamovies.ist");
-    }
-    if (imageUrl.includes("vegamovies.mex.com")) {
-      return imageUrl.replace("//vegamovies.mex.com", "https://vegamovies.ist");
-    }
-    if (imageUrl.includes("vegamovies.ph")) {
-      return imageUrl.replace("vegamovies.ph", "vegamovies.ist");
-    }
-    return imageUrl; // No transformation needed
-  };
+  // const transformImageUrl = (imageUrl) => {
+  //   if (imageUrl.includes("https://gogocdn.net")) {
+  //     return imageUrl.replace("https://ww5.gogoanimes.fi", "");
+  //   }
+  //   if (imageUrl.includes("m.vegamovies.yt")) {
+  //     return imageUrl.replace("m.vegamovies.yt", "vegamovies.ist");
+  //   }
+  //   if (imageUrl.includes("vegamovies.yt")) {
+  //     return imageUrl.replace("vegamovies.yt", "vegamovies.ist");
+  //   }
+  //   if (imageUrl.includes("vegamovies.mex.com")) {
+  //     return imageUrl.replace("//vegamovies.mex.com", "https://vegamovies.ist");
+  //   }
+  //   if (imageUrl.includes("vegamovies.ph")) {
+  //     return imageUrl.replace("vegamovies.ph", "vegamovies.ist");
+  //   }
+  //   return imageUrl; // No transformation needed
+  // };
 
   // Determines the color for rating based on IMDb rating
   const getRatingColor = (rating) => {
@@ -205,10 +212,11 @@ const SearchResult = () => {
             <Link
               key={index + 1}
               href={`/${element.title.includes("Download") ? "data" : "anime_hub"}/${element.slug}${element.title.includes("Download") ? "" : "/0/1"}`}
+              className="hover:scale-95 border-solid border-2 border-yellow-600 rounded-lg"
               onClick={showLoading}
               passHref
             >
-              <div className="p-4 to-black relative overflow-hidden rounded-lg shadow-lg cursor-pointer transition-transform duration-300 ease-in-out">
+              <div className="to-black relative overflow-hidden rounded-lg shadow-lg cursor-pointer transition-transform duration-300 ease-in-out">
                 <div className="relative overflow-hidden flex items-center justify-center">
                   <Image
                     width={144}
@@ -216,7 +224,6 @@ const SearchResult = () => {
                     src={getImageSource(element)}
                     alt={element.title.replace(/Download/, "").trim()}
                     className="object-cover hover:scale-110 overflow-hidden rounded-lg w-auto h-auto"
-                    style={{ clipPath: "polygon(0 10%, 100% 10%, 100% 100%, 0% 100%)" }}
                   />
                   <div
                     className={`absolute top-0 left-0 p-1 font-bold text-sm bg-opacity-50 rounded-tl-md ${getRatingColor(element.imdbDetails && element.imdbDetails.imdbRating ? element.imdbDetails.imdbRating.rating != null ? element.imdbDetails.imdbRating.rating : 0 : 0)}`}
@@ -233,7 +240,7 @@ const SearchResult = () => {
                   <h4 className="text-xs md:text-sm font-semibold mb-2">
                     {element.title}
                   </h4>
-                  <p className="text-gray-600">Year: {element.releaseYear}</p>
+                  <p className="text-sky-600">Year: {element.releaseYear}</p>
                 </div>
               </div>
             </Link>

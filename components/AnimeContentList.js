@@ -15,6 +15,7 @@ const ContentList = ({ contents }) => {
 
   useEffect(() => {
     setProgress(100);
+    setIsLoading(false);
   }, []);
 
   const getRatingColor = (rating) => {
