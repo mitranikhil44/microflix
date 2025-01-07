@@ -33,6 +33,7 @@ export default async function Content_Post({ params }) {
 
   // const contentDownloadLinks = content.downloadableLinksHtml?.map(link => `${link} <hr>`) || [];
 
+
   let fullContentHTML = content.content?.slice(0, indexOfScreenshots + 55) 
   // + `
   //   <div class="text-center mt-8 space-y-4">${contentDownloadLinks.join("")}</div>

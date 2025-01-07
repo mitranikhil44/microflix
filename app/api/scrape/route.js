@@ -410,28 +410,28 @@ async function scrapePage(pageNumber, site) {
     const response1 = await axios.get(url);
     const $1 = cheerio.load(response1.data);
 
-    $1("article").each((index, element) => {
-      const classValues = $1(element).attr("class");
-      const title = $1(element).find("h2.post-title a").text();
-      const articleUrl = $1(element).find("h2.post-title a").attr("href");
-      const imageDataSrc = $1(element).find("img").attr("data-src");
-      const imageSrcSet = $1(element).find("img").attr("srcset");
-      const imageSrc = $1(element).find("img").attr("src");
+    // $1("article").each((index, element) => {
+    //   const classValues = $1(element).attr("class");
+    //   const title = $1(element).find("h2.post-title a").text();
+    //   const articleUrl = $1(element).find("h2.post-title a").attr("href");
+    //   const imageDataSrc = $1(element).find("a img").attr("data-src");
+    //   const imageSrcSet = $1(element).find("a img").attr("srcset");
+    //   const imageSrc = $1(element).find("a img").attr("src");
 
-      // Check for a valid image source in the prioritized order
-      const image =
-        imageSrc && imageSrc.startsWith("https://")
-          ? imageSrc
-          : imageDataSrc && imageDataSrc.startsWith("https://")
-          ? imageDataSrc
-          : imageSrcSet && imageSrcSet.startsWith("https://")
-          ? imageSrcSet
-          : null; // Default to null if none are valid
+    //   // Check for a valid image source in the prioritized order
+    //   const image =
+    //     imageSrc && imageSrc.startsWith("https://")
+    //       ? imageSrc
+    //       : imageDataSrc && imageDataSrc.startsWith("https://")
+    //       ? imageDataSrc
+    //       : imageSrcSet && imageSrcSet.startsWith("https://")
+    //       ? imageSrcSet
+    //       : null; // Default to null if none are valid
 
-      console.log(image);
-      site1Articles.push({ title, url: articleUrl, image, classValues });
-    });
-    site1Articles.reverse();
+    //   console.log(image);
+    //   site1Articles.push({ title, url: articleUrl, image, classValues });
+    // });
+    // site1Articles.reverse();
 
     if (pageNumber <= 310) {
       const response2 = await axios.get(url2);
@@ -441,15 +441,12 @@ async function scrapePage(pageNumber, site) {
         const classValues = $1(element).attr("class");
         const title = $2(element).find("h3.entry-title a").text();
         const articleUrl = $2(element).find("h3.entry-title a").attr("href");
-        const imageDataSrc = $1(element).find("img").attr("data-src");
-        const imageSrcSet = $1(element).find("img").attr("srcset");
-        const imageSrc = $1(element).find("img").attr("src");
+        const imageDataSrc = $1(element).find("a img").attr("data-src");
+        const imageSrcSet = $1(element).find("a img").attr("srcset");
 
         // Check for a valid image source in the prioritized order
         const image =
-          imageSrc && imageSrc.startsWith("https://")
-            ? imageSrc
-            : imageDataSrc && imageDataSrc.startsWith("https://")
+             imageDataSrc && imageDataSrc.startsWith("https://")
             ? imageDataSrc
             : imageSrcSet && imageSrcSet.startsWith("https://")
             ? imageSrcSet
@@ -480,7 +477,7 @@ async function scrapePage(pageNumber, site) {
 }
 
 async function processPages() {
-  const site_1_starting_page = 294;
+  const site_1_starting_page = 200;
   const pageNumbers = Array.from(
     { length: 564 },
     (_, i) => site_1_starting_page - i
