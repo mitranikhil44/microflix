@@ -237,7 +237,7 @@ function extractSearchableContent(contentText) {
 // }
 
 async function processArticle(article) {
-  const { url, title, image } = article;
+  const { url, title, image, classValues } = article;
 
   try {
     const response = await axios.get(url);
@@ -291,6 +291,7 @@ async function processArticle(article) {
       content: content || null,
       imdbData: imdbData || null,
       releaseDate: releaseDate || null,
+      classValues: classValues || null,
       releaseYear: searchableContent.releaseYear || null,
     });
   } catch (error) {
@@ -342,6 +343,7 @@ async function updateOrCreateDatabaseEntry({
   content,
   releaseYear,
   releaseDate,
+  classValues,
   // imgUrls,
   imdbData,
 }) {
@@ -355,6 +357,7 @@ async function updateOrCreateDatabaseEntry({
       content,
       releaseYear: releaseYear || null,
       releaseDate: releaseDate || null,
+      classValues: classValues || null,
       // contentSceens: imgUrls,
       imdbDetails: imdbData || null,
     };
@@ -435,6 +438,7 @@ async function scrapePage(pageNumber, site) {
       const $2 = cheerio.load(response2.data);
 
       $2("article").each((index, element) => {
+        const classValues = $1(element).attr("class");
         const title = $2(element).find("h3.entry-title a").text();
         const articleUrl = $2(element).find("h3.entry-title a").attr("href");
         const imageDataSrc = $1(element).find("img").attr("data-src");
@@ -452,7 +456,7 @@ async function scrapePage(pageNumber, site) {
             : null; // Default to null if none are valid
 
         console.log(image);
-        site2Articles.push({ title, url: articleUrl, image });
+        site2Articles.push({ title, url: articleUrl, image, classValues });
       });
 
       site2Articles.reverse();
@@ -476,7 +480,7 @@ async function scrapePage(pageNumber, site) {
 }
 
 async function processPages() {
-  const site_1_starting_page = 394;
+  const site_1_starting_page = 294;
   const pageNumbers = Array.from(
     { length: 564 },
     (_, i) => site_1_starting_page - i
