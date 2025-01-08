@@ -4,7 +4,6 @@ import "swiper/css";
 import Link from "next/link";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
-import Image from "next/image";
 import "swiper/css/effect-coverflow";
 import React from "react";
 import { useWebStore } from "@/context";
@@ -192,12 +191,14 @@ const LatestContents = ({ data, movieLink, url }) => {
                   </div>
                 </div>
                 <div className="h-full">
-                  <Image
+                  <img
                     src={getImageSource(element)}
                     className="w-full h-full object-contain clip-path -mt-[20%] box-content"
                     alt={element.title.replace(/Download/, "").trim()}
-                    width={240}
-                    priority={index < 4}
+                    width={240}                    
+                    style={{
+                      clipPath: "polygon(0 10%, 100% 10%, 100% 100%, 0% 100%)",
+                    }}
                     height={240}
                   />
                 </div>

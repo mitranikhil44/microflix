@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -163,11 +162,10 @@ const MoviesCollection = ({ data, collectionName, movieLink, url }) => {
           }`}>
                   <div className="flex flex-col justify-center w-[144px] m-auto items-center hover:scale-105 cursor-pointer">
                     <div className="relative h-60 -z-10">
-                      <Image
+                      <img
                         width={144}
                         height={144}
                         src={getImageSource(element)}
-                        priority={index < 4}
                         alt={element.title.replace(/Download/, "").trim()}
                         className="hover:scale-95 rounded-lg w-full h-full clip-path -mt-[20%] vignette"
                       />

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
 import { useWebStore } from "@/context";
 import defaultLogo from "@/public/logo2.png";
 
@@ -5575,7 +5574,7 @@ if (!hydration) {
     <>
       <div className="flex xs:flex-row flex-col bg-yellow-700 m-[2%] rounded-lg shadow-md p-[2%] lg:p-[1%]">
         <div className="relative w-full xs:w-[9rem] h-full sm:w-[10rem] smmd:w-[11.5rem] lg:w-[13rem] mmd:w-[12rem] xl:w-[18rem] mr-[2%]">
-          <Image
+          <img
             src={getImageSource(content)}
             alt={content.imdbDetails?.imdbName || "N/A"}
             width={144}

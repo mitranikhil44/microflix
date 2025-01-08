@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import React, { useEffect } from "react";
-import Image from "next/image";
 import defaultLogo from "@/public/logo2.png";
 import { useWebStore } from "@/context";
 
@@ -106,13 +105,12 @@ const ContentList = ({ contents }) => {
             >
               <div className="to-black relative overflow-hidden rounded-lg shadow-lg cursor-pointer transition-transform duration-300 ease-in-out">
                 <div className="relative overflow-hidden flex items-center justify-center">
-                  <Image
+                  <img
                     width={144}
                     height={144}
                     src={getImageSource(element)}
                     alt={element.title.replace(/Download/, "").trim()}
                     className="object-cover overflow-hidden rounded-lg -mt-[20%] w-full h-full"
-                    priority={index < 4}
                     style={{
                       clipPath: "polygon(0 10%, 100% 10%, 100% 100%, 0% 100%)",
                     }}

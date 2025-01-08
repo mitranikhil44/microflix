@@ -1,4 +1,3 @@
-import Image from "next/image";
 import ImdbDetails from "@/components/other/ImdbDetails";
 import Contact from "@/components/other/ContactUs";
 
@@ -21,7 +20,7 @@ export default async function Content_Post({ params }) {
 
   const contentScreens = content.contentSceens?.map((img, index) => `
     <div class="p-2 hover:scale-95 w-64" key="${index + 1}">
-      <Image src="${img}" class="rounded-lg" height={100} width={100} />
+      <img src="${img}" class="rounded-lg" height={100} width={100} />
     </div>
   `) || [];
 

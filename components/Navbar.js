@@ -1,10 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useWebStore } from "@/context";
-import Logo from "@/public/logo.png";
 import CateogryData from "./other/CateogryData";
 import { usePathname } from "next/navigation";
 
@@ -48,7 +46,7 @@ const Navbar = () => {
           <div className="flex justify-between items-center ">
             <Link href="/" className="flex items-center" onClick={pathname != "/" ? () => { showLoading(); scrollTop(); }:""}>
               <div className="w-[80%]">
-                <Image src={Logo} alt="Logo" />
+                <img src="/logo.png" alt="Logo" />
               </div>
               <p className="text-yellow-600 text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl xxl:text-3xl ml-[1rem]">
               </p>

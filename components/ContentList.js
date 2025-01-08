@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import React, { useEffect } from "react";
-import Image from "next/image";
 import defaultLogo from "@/public/logo2.png";
 import { useWebStore } from "@/context";
 
@@ -72,17 +71,7 @@ const ContentList = ({ contents }) => {
 
     const imageUrl = encodeURIComponent(image);
     const proxyUrl = `/api/image-proxy?url=${imageUrl}`;
-
-    // Check if IMDb details are available and contain poster links
-    if (element.imdbDetails && element.imdbDetails.imdbPosterLink) {
-        const posterLinks = element.imdbDetails.imdbPosterLink;
-        // Check if posterLinks is an array and not empty
-        if (Array.isArray(posterLinks) && posterLinks.length > 0) {
-            // Return the last poster link URL
-            return posterLinks[posterLinks.length - 1].url;
-        }
-    }
-
+    
     // Check if element has a custom image
     if (proxyUrl) {
         if (proxyUrl.includes("https://gogocdn.net")) {
@@ -126,13 +115,12 @@ const ContentList = ({ contents }) => {
             >
               <div className="to-black relative overflow-hidden  shadow-lg cursor-pointer transition-transform duration-300 ease-in-out rounded-t-lg">
                 <div className="relative overflow-hidden flex items-center justify-center">
-                  <Image
+                  <img
                     width={144}
                     height={144}
                     src={getImageSource(element)}
                     alt={element.title.replace(/Download/, "").trim()}
                     className="object-cover overflow-hidden -mt-[20%] w-full h-full"
-                    priority={index < 4}
                     style={{
                       clipPath: "polygon(0 10%, 100% 10%, 100% 100%, 0% 100%)",
                     }}

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import defaultLogo from "@/public/logo2.png";
 import ResultedContent from "@/components/other/ResultedContent";
@@ -187,7 +186,7 @@ const SearchResult = ({ params }) => {
             >
               <div className="to-black relative overflow-hidden rounded-lg shadow-lg cursor-pointer transition-transform duration-300 ease-in-out">
                 <div className="relative overflow-hidden flex items-center justify-center">
-                  <Image
+                  <img
                     width={144}
                     height={144}
                     src={getImageSource(element)}
