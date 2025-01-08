@@ -69,10 +69,45 @@ const ContentList = ({ contents }) => {
         }
         return defaultLogo;
     }
-    
+
+    const imageUrl = encodeURIComponent(image);
+    const proxyUrl = `/api/image-proxy?url=${imageUrl}`;
+
+    // Check if IMDb details are available and contain poster links
+    if (element.imdbDetails && element.imdbDetails.imdbPosterLink) {
+        const posterLinks = element.imdbDetails.imdbPosterLink;
+        // Check if posterLinks is an array and not empty
+        if (Array.isArray(posterLinks) && posterLinks.length > 0) {
+            // Return the last poster link URL
+            return posterLinks[posterLinks.length - 1].url;
+        }
+    }
+
+    // Check if element has a custom image
+    if (proxyUrl) {
+        if (proxyUrl.includes("https://gogocdn.net")) {
+            return proxyUrl.replace("https://ww5.gogoanimes.fi", "");
+        }
+
+        // Handle vegamovies domain replacements
+        const vegamoviesPatterns = [
+            { old: "m.vegamovies.yt", new: "vegamovies.ms" },
+            { old: "vegamovies.yt", new: "vegamovies.ms" },
+            { old: "//vegamovies.mex.com", new: "https://vegamovies.ms" },
+        ];
+
+        for (const pattern of vegamoviesPatterns) {
+            if (proxyUrl.includes(pattern.old)) {
+                return proxyUrl.replace(pattern.old, pattern.new);
+            }
+        }
+
+        return proxyUrl;
+    }
+
     // If no custom image or IMDb poster links available, return default logo
-    return image;
-  };
+    return defaultLogo;
+};
 
 
   return (
