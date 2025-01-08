@@ -3,8 +3,8 @@ import cheerio from "cheerio";
 import connectToDatabase from "@/lib/mongodb";
 import { Anime_Contents } from "@/models/animeScrapeSchema";
 
-const BASE_URL_VERSION1 = "https://ww9.gogoanimes.fi/anime-list.html?page=";
-const BASE_URL_VERSION2 = "https://ww9.gogoanimes.fi";
+const BASE_URL_VERSION1 = "https://ww19.gogoanimes.fi/anime-list.html?page=";
+const BASE_URL_VERSION2 = "https://ww19.gogoanimes.fi";
 
 const scrapeCode = async (url) => {
   try {

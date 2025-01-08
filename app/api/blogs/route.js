@@ -61,8 +61,8 @@ async function fetchContentData(category, page, pageSize) {
       const data = await Anime_Contents.aggregate(
         [
           { $match: filterConditions },
-          { $sort: { "imdbDetails.imdbRating.rating": -1, _id: -1 } },
-          { $skip: Math.max(0, totalCount - page * pageSize) },
+          { $sort: { "imdbDetails.imdbRating.rating": -1 } },
+          { $skip: (page - 1) * pageSize },
           { $limit: pageSize },
         ],
         { allowDiskUse: true }
@@ -77,8 +77,8 @@ async function fetchContentData(category, page, pageSize) {
       const data = await Contents.aggregate(
         [
           { $match: filterConditions },
-          { $sort: { "imdbDetails.imdbRating.rating": -1, _id: -1 } },
-          { $skip: Math.max(0, totalCount - page * pageSize) },
+          { $sort: { "imdbDetails.imdbRating.rating": -1 } },
+          { $skip: (page - 1) * pageSize },
           { $limit: pageSize },
         ],
         { allowDiskUse: true }
@@ -93,8 +93,8 @@ async function fetchContentData(category, page, pageSize) {
       const data = await Anime_Contents.aggregate(
         [
           { $match: filterConditions },
-          { $sort: { _id: -1 } },
-          { $skip: Math.max(0, totalCount - page * pageSize) },
+          { $sort: { updatedAt: -1 } },
+          { $skip: (page - 1) * pageSize },
           { $limit: pageSize },
         ],
         { allowDiskUse: true }
@@ -109,7 +109,8 @@ async function fetchContentData(category, page, pageSize) {
       const data = await Contents.aggregate(
         [
           { $match: filterConditions },
-          { $skip: Math.max(0, totalCount - page * pageSize) },
+          { $sort: { updatedAt: -1 } },
+          { $skip: (page - 1) * pageSize },
           { $limit: pageSize },
         ],
         { allowDiskUse: true }
@@ -124,7 +125,6 @@ async function fetchContentData(category, page, pageSize) {
 
   return response;
 }
-
 
 function buildAnimeFilterConditions(category) {
   switch (category) {

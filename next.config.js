@@ -35,11 +35,13 @@ const nextConfig = {
       '3.bp.blogspot.com',
       'vegamovies.cash',
       'vegamovies.rsvp',
+      'rogmovies.com',
       'vegamovies.ph',
       'ww5.gogoanimes.fi',
       'gogocdn.net',
       'vegamovies.ist',
       'luxmovies.vip',
+      'vegamovies.ms',
       'vegamovies.mex.com',
       'm.vegamovies.yt',
       'vegamovies.nz',
@@ -57,6 +59,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'dotmovies.bet',
+      },
+      {
+        protocol: 'https',
+        hostname: 'rogmovies.com',
       },
       {
         protocol: 'https',
@@ -157,6 +163,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'ww9.gogoanimes.fihttps',
+      },
+      {
+        protocol: 'https',
+        hostname: 'vegamovies.ms',
       },
       {
         protocol: 'https',
