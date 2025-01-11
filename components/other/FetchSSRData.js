@@ -8,6 +8,7 @@ const FetchSSRData = async (page, category) => {
         headers: {
           "Content-Type": "application/json",
         },
+        revalidate: 3600,
       }
     );
     const contents = await response.json();
