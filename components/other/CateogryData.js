@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useWebStore } from "@/context";
@@ -50,7 +52,7 @@ const CateogryData = () => {
   if (!isHydrated) return null;
 
   return (
-    <div className="my-4 text-xs sm:text-sm lg:my-3">
+    <div className="text-xs sm:text-sm ">
       {/* Category Buttons Section */}
       <div className="flex flex-wrap justify-center gap-6 items-center mx-auto mb-6">
         {[

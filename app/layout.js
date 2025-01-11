@@ -10,6 +10,7 @@ import favicon32 from "@/public/fav_icons/favicon-32x32.png";
 import favicon16 from "@/public/fav_icons/favicon-16x16.png";
 import androidChrome192 from "@/public/fav_icons/android-chrome-192x192.png";
 import androidChrome512 from "@/public/fav_icons/android-chrome-512x512.png";
+import CateogryData from "@/components/other/CateogryData";
 
 const Navbar = dynamic(() => import("@/components/Navbar"), {
   ssr: false,
@@ -98,7 +99,9 @@ export default function RootLayout({ children }) {
           <WebStoreProvider>
             <div>
               <Navbar />
-              <div className="sm:gridClass mx-auto sm:p-0 px-[3%] xl:w-[1560px] m-auto sm:w-[75%] w-full">
+              <div className="main-content sm:gridClass mx-auto px-2 xl:w-[1560px] m-auto sm:w-[75%] w-full">
+                {/* Category Data */}
+                <CateogryData />
                 {children}
                 <Analytics />
                 <SpeedInsights />

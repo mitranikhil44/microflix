@@ -10,54 +10,79 @@
   background: transparent;
 }
 
-/* Background Gradient */
+/* Dark Theme Background */
 body {
-  background: linear-gradient(135deg, #ff8c00 0%, #d834ff 50%, #ff0048 100%);
+  background: radial-gradient(circle at top left, #1a1a1a, #0f0f0f);
   background-attachment: fixed;
   min-height: 100vh;
   font-family: 'Inter', sans-serif;
   overflow-x: hidden;
   position: relative;
+  color: #f1f1f1;
 }
 
-/* Floating Circle Shapes */
+/* Floating Gradient Shapes */
 .shape-circle {
   position: absolute;
-  width: 180px;
-  height: 180px;
-  background: rgba(255, 255, 255, 0.1);
+  width: 150px;
+  height: 150px;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(255, 255, 255, 0.1));
   border-radius: 50%;
   animation: float 8s ease-in-out infinite;
-  box-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.4);
 }
 
 .shape-circle:nth-child(1) {
-  top: 15%;
-  left: 10%;
+  top: 10%;
+  left: 15%;
+  background: rgba(255, 165, 0, 0.2);
 }
 
 .shape-circle:nth-child(2) {
-  bottom: 20%;
-  right: 15%;
-  width: 150px;
-  height: 150px;
+  bottom: 25%;
+  right: 20%;
+  background: rgba(255, 69, 0, 0.2);
+  width: 160px;
+  height: 160px;
 }
 
 .shape-circle:nth-child(3) {
-  top: 60%;
-  left: 70%;
-  width: 120px;
-  height: 120px;
+  top: 65%;
+  left: 75%;
+  background: rgba(138, 43, 226, 0.2);
+  width: 80px;
+  height: 80px;
 }
 
-/* Animation for Floating Effect */
+/* Smooth Floating Animation */
 @keyframes float {
   0%, 100% {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-15px);
+    transform: translateY(-10px);
   }
+}
+
+/* Button Styling */
+.button {
+  background: linear-gradient(90deg, #ff8c00, #ff0048);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.button:hover {
+  background: linear-gradient(90deg, #ff0048, #ff8c00);
+  transform: translateY(-3px);
+}
+
+/* Navbar Hover Effects */
+.navbar-item:hover {
+  color: #ff8c00;
+  transform: scale(1.05);
 }
 
   .watch-btn, .dwd-button {
