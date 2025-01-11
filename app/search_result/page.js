@@ -206,16 +206,16 @@ const SearchResult = () => {
         <p>
           <strong>Total Result is:</strong> {totalData}
         </p>
-        <div className="grid grid-cols-2 mt-4 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 overflow-hidden">
+        <div className="grid grid-cols-2 mt-4 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 overflow-hidden pb-8">
           {contents.map((element, index) => (
             <Link
               key={index + 1}
               href={`/${element.title.includes("Download") ? "data" : "anime_hub"}/${element.slug}${element.title.includes("Download") ? "" : "/0/1"}`}
-              className="hover:scale-95 border-solid border-2 border-yellow-600 rounded-lg"
+              className="hover:scale-95 shadow-xl border-solid border-2 border-yellow-600 rounded-lg"
               onClick={showLoading}
               passHref
             >
-              <div className="to-black relative overflow-hidden rounded-lg shadow-lg cursor-pointer transition-transform duration-300 ease-in-out">
+              <div className="to-black relative overflow-hidden rounded-lg cursor-pointer transition-transform duration-300 ease-in-out">
                 <div className="relative overflow-hidden flex items-center justify-center">
                   <img
                     width={144}
@@ -235,11 +235,11 @@ const SearchResult = () => {
                     </p>
                   </div>
                 </div>
-                <div className="flex flex-col justify-center items-center text-center mt-2">
+                <div className="flex flex-col justify-center items-center text-center mt-2 p-[2%]">
                   <h4 className="text-xs md:text-sm font-semibold mb-2">
                     {element.title}
                   </h4>
-                  <p className="text-sky-600">Year: {element.releaseYear}</p>
+                  <p className="text-gray-600">{element.releaseDate}</p>
                 </div>
               </div>
             </Link>

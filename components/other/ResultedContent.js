@@ -26,16 +26,15 @@ export default function PaginationButton({ totalPages, page, query }) {
           pageRangeDisplayed={1}
           marginPagesDisplayed={1}
           onPageChange={handlePageChange}
-          containerClassName="pagination flex justify-center items-center gap-2"
-          activeClassName="active"
-          pageClassName="cursor-pointer bg-gray-200 text-gray-800 font-medium hover:bg-yellow-500 hover:text-white px-2 py-1 xxs:px-3 xxs:py-1.5 xs:px-4 xs:py-2 rounded-full transition duration-300 ease-in-out"
-          previousClassName="cursor-pointer bg-blue-500 text-white font-medium hover:bg-blue-700 px-2 py-1 xxs:px-3 xxs:py-1.5 xs:px-4 xs:py-2 rounded-full transition duration-300 ease-in-out"
-          nextClassName="cursor-pointer bg-blue-500 text-white font-medium hover:bg-blue-700 px-2 py-1 xxs:px-3 xxs:py-1.5 xs:px-4 xs:py-2 rounded-full transition duration-300 ease-in-out"
+          containerClassName="pagination flex justify-center items-center gap-2 mt-4"
+          pageClassName="cursor-pointer bg-white text-gray-800 hover:bg-yellow-400 hover:text-white font-medium px-2 py-1 xxs:px-3 xxs:py-1.5 xs:px-4 xs:py-2 rounded-full shadow-md transition duration-300 ease-in-out"
+          previousClassName="cursor-pointer bg-blue-500 text-white hover:bg-blue-600 px-2 py-1 xxs:px-3 xxs:py-1.5 xs:px-4 xs:py-2 rounded-full shadow-md transition duration-300 ease-in-out"
+          nextClassName="cursor-pointer bg-blue-500 text-white hover:bg-blue-600 px-2 py-1 xxs:px-3 xxs:py-1.5 xs:px-4 xs:py-2 rounded-full shadow-md transition duration-300 ease-in-out"
+          breakClassName="text-gray-500 font-medium"
+          activeClassName="bg-yellow-500 text-white"
           previousLabel="Previous"
           nextLabel="Next"
           breakLabel="..."
-          breakClassName="text-blue-500 font-medium"
-          activeLinkClassName="bg-yellow-500 text-white"
           disabledClassName="opacity-50 cursor-not-allowed"
           forcePage={currentPage}
         />

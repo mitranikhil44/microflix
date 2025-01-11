@@ -10,34 +10,65 @@
   background: transparent;
 }
 
+/* Background Gradient */
 body {
-  background: url('/public/bg_image.png') no-repeat center center fixed,
-    linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, 0.9) 0%,
-      rgba(33, 37, 41, 0.85) 50%,
-      rgba(0, 0, 0, 0.9) 100%
-    ),
-    radial-gradient(
-      circle at top left,
-      rgba(255, 105, 180, 0.2),
-      transparent 60%
-    ),
-    radial-gradient(
-      circle at bottom right,
-      rgba(0, 206, 209, 0.2),
-      transparent 60%
-    );
-  background-size: cover, cover, cover, cover; /* Ensures all layers scale appropriately */
-  background-blend-mode: overlay; /* Blends gradients with the image */
-  background-attachment: fixed; /* Locks the image in place during scroll */
-  color: white;
+  background: linear-gradient(135deg, #ff8c00 0%, #d834ff 50%, #ff0048 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Floating Circle Shapes */
+.shape-circle {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  animation: float 8s ease-in-out infinite;
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
+}
+
+.shape-circle:nth-child(1) {
+  top: 15%;
+  left: 10%;
+}
+
+.shape-circle:nth-child(2) {
+  bottom: 20%;
+  right: 15%;
+  width: 150px;
+  height: 150px;
+}
+
+.shape-circle:nth-child(3) {
+  top: 60%;
+  left: 70%;
+  width: 120px;
+  height: 120px;
+}
+
+/* Animation for Floating Effect */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
 }
 
   .watch-btn, .dwd-button {
     @apply px-6 py-3 bg-gradient-to-r from-red-500 via-pink-500 to-yellow-500 text-white font-semibold text-sm sm:text-base rounded-full shadow-md hover:from-yellow-500 hover:via-pink-500 hover:to-red-500 transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105 focus:ring-4 focus:ring-yellow-500 focus:outline-none;
   }
 
+  /* Smooth Hover Effects */
+.nav-link:hover {
+  transform: scale(1.05);
+  color: #ff8c00;
+}
 
 .emoji{
   width: 2%;

@@ -57,32 +57,59 @@ async function fetchContentData(category, page, pageSize) {
       const filterConditions = buildAnimeFilterConditions(category);
       const totalCount = await Anime_Contents.countDocuments(filterConditions);
       const totalPages = Math.ceil(totalCount / pageSize);
-
+    
       const data = await Anime_Contents.aggregate(
         [
           { $match: filterConditions },
-          { $sort: { "imdbDetails.imdbRating.rating": -1 } },
+          // Convert rating to number, handle errors gracefully
+          {
+            $addFields: {
+              "imdbDetails.imdbRating.numericRating": {
+                $convert: {
+                  input: "$imdbDetails.imdbRating.rating",
+                  to: "double",
+                  onError: null,  // Handle invalid conversions
+                  onNull: null
+                }
+              }
+            }
+          },
+          // Filter out entries with invalid or missing numeric ratings
+          { $match: { "imdbDetails.imdbRating.numericRating": { $ne: null } } },
+          { $sort: { "imdbDetails.imdbRating.numericRating": -1 } },
           { $skip: (page - 1) * pageSize },
           { $limit: pageSize },
         ],
         { allowDiskUse: true }
       ).exec();
-
+    
       response.push({ data, currentPage: page, pageSize, totalPages });
-    } else if (category.startsWith("top_content")) {
+    }else if (category.startsWith("top_content")) {
       const filterConditions = buildFilterConditions(category);
       const totalCount = await Contents.countDocuments(filterConditions);
       const totalPages = Math.ceil(totalCount / pageSize);
-
-      const data = await Contents.aggregate(
-        [
-          { $match: filterConditions },
-          { $sort: { "imdbDetails.imdbRating.rating": -1 } },
-          { $skip: (page - 1) * pageSize },
-          { $limit: pageSize },
-        ],
-        { allowDiskUse: true }
-      ).exec();
+    
+      const data = await Contents.aggregate([
+        { $match: filterConditions },
+        // Safely convert rating to number, setting non-numeric values to null
+        {
+          $addFields: {
+            "imdbDetails.imdbRating.numericRating": {
+              $convert: {
+                input: "$imdbDetails.imdbRating.rating",
+                to: "double",
+                onError: null,  // Set invalid conversions to null
+                onNull: null
+              }
+            }
+          }
+        },
+        // Exclude entries with null or missing ratings for proper sorting
+        { $match: { "imdbDetails.imdbRating.numericRating": { $ne: null } } },
+        { $sort: { "imdbDetails.imdbRating.numericRating": -1 } },
+        { $skip: (page - 1) * pageSize },
+        { $limit: pageSize },
+      ], { allowDiskUse: true }).exec();         
 
       response.push({ data, currentPage: page, pageSize, totalPages });
     } else if (category.startsWith("anime")) {

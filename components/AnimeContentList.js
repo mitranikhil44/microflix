@@ -95,15 +95,15 @@ const ContentList = ({ contents }) => {
   return (
     <div>
       <div>
-        <div className="grid grid-cols-2 mt-4 gap-2 llg:gap-4 xs:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 overflow-hidden">
+        <div className="grid grid-cols-2 mt-4 gap-2 llg:gap-4 xs:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 overflow-hidden pb-8">
           {contents[0].data.map((element, index) => (
             <Link
               key={index + 1}
               href={`/anime_hub/${element.slug}/0/1`}
               onClick={showLoading}
-              className="hover:scale-95 border-solid border-2 border-yellow-600 rounded-lg"
+              className="hover:scale-95 border-solid border-2 border-yellow-600 rounded-lg shadow-xl"
             >
-              <div className="to-black relative overflow-hidden rounded-lg shadow-lg cursor-pointer transition-transform duration-300 ease-in-out">
+              <div className="to-black relative overflow-hidden rounded-lg cursor-pointer transition-transform duration-300 ease-in-out">
                 <div className="relative overflow-hidden flex items-center justify-center">
                   <img
                     width={144}
@@ -143,11 +143,11 @@ const ContentList = ({ contents }) => {
                     </p>
                   </div>
                 </div>
-                <div className="flex flex-col justify-center items-center text-center mt-2">
+                <div className="flex flex-col justify-center items-center text-center mt-2 p-[2%]">
                   <h4 className="text-xs md:text-sm font-semibold mb-2">
                     {element.title}
                   </h4>
-                  <p className="text-gray-300">Year: {element.releaseYear}</p>
+                  <p className="text-gray-600">{element.releaseDate}</p>
                 </div>
               </div>
             </Link>

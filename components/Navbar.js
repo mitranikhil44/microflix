@@ -17,65 +17,66 @@ const Navbar = () => {
   };
 
   const handleScroll = () => {
-    if (window.scrollY > 50) {
-      setScrolled(true);
-    } else {
-      setScrolled(false);
-    }
+    setScrolled(window.scrollY > 50);
   };
 
   const scrollTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
 
   return (
     <>
-      <div className={`px-5 py-2 sticky top-0 z-50 transition-colors duration-300 ${scrolled ? 'bg-black' : 'bg-transparent'}`}>
-        <div className="xl:w-[1560px] sm:w-[75%] w-full mx-auto">
-          <div className="flex justify-between items-center ">
-            <Link href="/" className="flex items-center" onClick={pathname != "/" ? () => { showLoading(); scrollTop(); }:""}>
-              <div className="w-[80%]">
-                <img src="/logo.png" alt="Logo" />
-              </div>
-              <p className="text-yellow-600 text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl xxl:text-3xl ml-[1rem]">
-              </p>
-            </Link>
-            <div className="space-x-4 mr-[2%] flex justify-end items-center w-2/4" onClick={scrollTop}>
-              {scrolled && (
-                <div
-                className="absolute top-1/2 right-5 transform -translate-y-1/2 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
-                aria-label="Search"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  fill="currentColor"
-                  className="bi bi-search"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"
-                  />
-                </svg>
-              </div>
-              )}
-            </div>
-          </div>
+      <nav
+        className={`fixed top-0 flex justify-center items-center w-full z-50 transition-all duration-300 backdrop-blur-xl ${
+          scrolled
+            ? "bg-gradient-to-r from-orange-600 via-purple-700 to-indigo-900 bg-opacity-80 shadow-lg"
+            : "bg-transparent"
+        }`}
+      >
+        <div className="xl:w-[1560px] sm:w-[75%] w-full flex justify-between p-2 sm:p-4">
+          {/* Logo */}
+          <Link
+            href="/"
+            onClick={pathname !== "/" ? () => { showLoading(); scrollTop(); } : ""}
+          >
+            <img
+              src="/logo.png"
+              alt="Microflix Logo"
+              className="w-36 sm:w-44 object-contain hover:scale-105 transition-transform duration-300"
+            />
+          </Link>
+
+          {/* Search Button */}
+          <button
+            onClick={scrollTop}
+            className={`${
+              scrolled ? "opacity-100" : "opacity-0"
+            } bg-purple-600 p-2 rounded-full hover:bg-purple-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-300 transition duration-300`}
+            aria-label="Search"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              fill="currentColor"
+              className="bi bi-search"
+              viewBox="0 0 16 16"
+            >
+              <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+            </svg>
+          </button>
         </div>
-      </div>
-      <hr/>
+      </nav>
+
+      {/* Divider */}
+      <hr className="border-gray-700 mt-12" />
+
+      {/* Category Data */}
       <CateogryData />
     </>
   );

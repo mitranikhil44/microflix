@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React from "react";
 import Link from "next/link";
@@ -6,79 +6,77 @@ import { useWebStore } from "@/context";
 
 const CategoryData = () => {
   const { setProgress } = useWebStore();
+
   const showLoading = () => {
     setProgress(30);
   };
 
   return (
-    <div className="my-[2%] text-xs smd:text-sm">
-      <div className="flex justify-center flex-wrap gap-y-2 items-center rounded-xl xs:rounded-2xl mx-auto mb-[1%] p-[1.5%] sm:p-[1%] lg:p-[0.5%]">
+    <div className="my-4 text-xs sm:text-sm">
+      {/* Main Category Buttons */}
+      <div className="flex justify-center flex-wrap gap-4 items-center rounded-xl mx-auto mb-4 p-4 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 shadow-lg">
         <Link
           href="/anime_hub/anime_movies"
           onClick={showLoading}
-          className="bg-purple-500 hover:bg-purple-700 text-white font-semibold mmd:py-2 mmd:px-4 xs:py-1 xs:px-2 py-0 px-1 border border-purple-700 rounded mr-2 mmd:mr-4.5 xl:mr-8"
+          className="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg shadow hover:shadow-lg transition-transform transform hover:-translate-y-1"
         >
           Anime Movies
         </Link>
         <Link
           href="/anime_hub/anime_web_series"
           onClick={showLoading}
-          className="bg-orange-500 hover:bg-orange-700 text-white font-semibold mmd:py-2 mmd:px-4 xs:py-1 xs:px-2 py-0 px-1 border border-orange-700 rounded mr-2 mmd:mr-4.5 xl:mr-8"
+          className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg shadow hover:shadow-lg transition-transform transform hover:-translate-y-1"
         >
           Anime Web Series
         </Link>
-        <div className="hidden xs:block ">
-          <Link
-            href="/anime_hub/anime_contents"
-            onClick={showLoading}
-            className="bg-green-500 hover:bg-green-700 text-white font-semibold mmd:py-2 mmd:px-4 xs:py-1 xs:px-2 py-0 px-1 border border-green-700 rounded mr-2 mmd:mr-4.5 xl:mr-8"
-          >
-            Anime Contents
-          </Link>
-        </div>
+        <Link
+          href="/anime_hub/anime_contents"
+          onClick={showLoading}
+          className="hidden xs:block bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow hover:shadow-lg transition-transform transform hover:-translate-y-1"
+        >
+          Anime Contents
+        </Link>
 
-        {/* Dropdown Buttons */}
-
-        {/* More Contents Dropdown Button */}
-        <div className="relative group xs:hidden mr-2 mmd:mr-4.5 xl:mr-8">
-          <button className="bg-indigo-500 hover:bg-indigo-700 text-white font-semibold mmd:py-2 mmd:px-4 xs:py-1 xs:px-2 py-0 px-1 border border-indigo-700 rounded-md focus:outline-none flex justify-center items-center gap-1">
+        {/* Dropdown for Additional Contents */}
+        <div className="relative group xs:hidden">
+          <button className="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg shadow hover:shadow-lg flex items-center justify-center transition-transform transform hover:-translate-y-1">
             More
           </button>
-          <ul className="absolute hidden overflow-hidden top-0 rounded-md bg-red-950 text-white group-hover:block z-10 w-24 xxs:w-32">
+          <ul className="absolute hidden overflow-hidden rounded-lg bg-gray-800 text-white group-hover:block z-10 w-32 shadow-lg mt-2">
             <Link
               href="/anime_hub/anime_contents"
               onClick={showLoading}
-              className="block p-2"
+              className="block px-4 py-2 hover:bg-gray-700"
             >
               Anime Contents
             </Link>
           </ul>
         </div>
 
-        {/* Top Rated Contents Button */}
-        <div className="relative group bg-transparent">
-          <button className="bg-sky-500 hover:bg-sky-700 text-white font-semibold mmd:py-2 mmd:px-4 xs:py-1 xs:px-2 py-0 px-1 border border-sky-700 rounded-md focus:outline-none flex justify-center items-center gap-1">
+        {/* Top Rated Dropdown */}
+        <div className="relative group">
+          <button className="bg-sky-500 hover:bg-sky-600 text-white font-semibold py-2 px-4 rounded-lg shadow hover:shadow-lg flex items-center justify-center transition-transform transform hover:-translate-y-1">
             Top Rated
           </button>
-          <ul className="absolute hidden overflow-hidden top-0 rounded-md bg-red-950 text-white group-hover:block z-10 w-24 xxs:w-32">
+          <ul className="absolute hidden overflow-hidden rounded-lg bg-gray-800 text-white group-hover:block z-10 w-40 shadow-lg mt-2">
             <Link
               href="/anime_hub/top_anime_contents"
               onClick={showLoading}
-              className="block p-2"
+              className="block px-4 py-2 hover:bg-gray-700"
             >
               Top Anime Contents
             </Link>
             <Link
               href="/anime_hub/top_anime_movies"
               onClick={showLoading}
-              className="block p-2"
+              className="block px-4 py-2 hover:bg-gray-700"
             >
               Top Anime Movies
             </Link>
             <Link
               href="/anime_hub/top_anime_web_series"
               onClick={showLoading}
-              className="block p-2"
+              className="block px-4 py-2 hover:bg-gray-700"
             >
               Top Anime TV Series
             </Link>
@@ -86,17 +84,18 @@ const CategoryData = () => {
         </div>
       </div>
 
-      <div className="flex justify-center flex-wrap items-center gap-[2%]">
+      {/* Bottom Navigation Buttons */}
+      <div className="flex justify-center flex-wrap gap-4 mt-6">
         <Link
           href="/"
           onClick={showLoading}
-          className="bg-yellow-500 hover:bg-yellow-700 text-white font-semibold mmd:py-2 mmd:px-4 xs:py-1 xs:px-2 py-0 px-1 border border-yellow-700 rounded"
+          className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg shadow hover:shadow-lg transition-transform transform hover:-translate-y-1"
         >
           Contents Hub
         </Link>
         <Link
           href="https://t.me/microflix_480p_720_1080p_movies"
-          className="bg-blue-500 hover:bg-blue-700 text-white font-semibold mmd:py-2 mmd:px-4 xs:py-1 xs:px-2 py-0 px-1 border border-blue-700 rounded"
+          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow hover:shadow-lg transition-transform transform hover:-translate-y-1"
         >
           Join Telegram
         </Link>

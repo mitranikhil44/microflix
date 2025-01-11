@@ -90,20 +90,22 @@ export default function RootLayout({ children }) {
           })(window,document,'script','dataLayer','GTM-PHQFK2KV');`}
         </Script>
       </head>
-      <body
-        className={`bg-[url('/bg_image.png')] bg-gray-800 bg-cover bg-center bg-fixed font-sans antialiased text-white ${inter.className}`}
-      >
-        <WebStoreProvider>
-          <div>
-            <Navbar />
-            <div className="sm:gridClass mx-auto sm:p-0 px-[3%] xl:w-[1560px] m-auto sm:w-[75%] w-full">
-              {children}
-              <Analytics />
-              <SpeedInsights />
+      <body className="relative text-white">
+        <div className="shape-circle"></div>
+        <div className="shape-circle"></div>
+        <div className="shape-circle"></div>
+        <main className="">
+          <WebStoreProvider>
+            <div>
+              <Navbar />
+              <div className="sm:gridClass mx-auto sm:p-0 px-[3%] xl:w-[1560px] m-auto sm:w-[75%] w-full">
+                {children}
+                <Analytics />
+                <SpeedInsights />
+              </div>
             </div>
-          </div>
-        </WebStoreProvider>
-
+          </WebStoreProvider>
+        </main>
         {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe
