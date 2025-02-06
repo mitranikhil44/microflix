@@ -5554,6 +5554,8 @@ if (!hydration) {
       const vegamoviesPatterns = [
         { old: "m.vegamovies.yt", new: "vegamovies.tw" },
         { old: "vegamovies.yt", new: "vegamovies.tw" },
+        { old: "rogmovies.com", new: "rogmovies.cfd" },
+        { old: "vegamovies.nz", new: "vegamovies.ms" },
         { old: "//vegamovies.mex.com", new: "https://vegamovies.tw" },
       ];
 

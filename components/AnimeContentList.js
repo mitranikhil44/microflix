@@ -54,43 +54,54 @@ const ContentList = ({ contents }) => {
 
   // Function to get the appropriate image source
   const getImageSource = (element) => {
-    const image = element.image;
-
-    // Check if element has a custom image
-    if (image) {
-      if (image.includes("https://gogocdn.net")) {
-        return image.replace("https://ww5.gogoanimes.fi", "");
-      }
-
-      // Handle vegamovies domain replacements
-      const vegamoviesPatterns = [
-        { old: "m.vegamovies.yt", new: "vegamovies.tw" },
-        { old: "vegamovies.yt", new: "vegamovies.tw" },
-        { old: "//vegamovies.mex.com", new: "https://vegamovies.tw" },
-      ];
-
-      for (const pattern of vegamoviesPatterns) {
-        if (image.includes(pattern.old)) {
-          return image.replace(pattern.old, pattern.new);
+    if (!element) return defaultLogo; // Ensure element exists
+  
+    // Replace domain in image URL if applicable
+    let image = element.image
+  
+    // If image is invalid, check IMDb poster links
+    if (!image || !image.startsWith("https://")) {
+      if (element.imdbDetails?.imdbPosterLink) {
+        const posterLinks = element.imdbDetails.imdbPosterLink;
+  
+        // Check if posterLinks is a valid non-empty array
+        if (Array.isArray(posterLinks) && posterLinks.length > 0) {
+          return posterLinks[posterLinks.length - 1]?.url || defaultLogo;
         }
       }
-
-      return image;
+      return defaultLogo;
     }
-
-    // Check if IMDb details are available and contain poster links
-    if (element.imdbDetails && element.imdbDetails.imdbPosterLink) {
-      const posterLinks = element.imdbDetails.imdbPosterLink;
-      // Check if posterLinks is an array and not empty
-      if (Array.isArray(posterLinks) && posterLinks.length > 0) {
-        // Return the last poster link URL
-        return posterLinks[posterLinks.length - 1].url;
+  
+    // Encode image URL to prevent issues
+    const imageUrl = encodeURIComponent(image);
+    let proxyUrl = `/api/image-proxy?url=${imageUrl}`;
+  
+    // If proxy URL is valid, apply domain replacements
+    if (proxyUrl) {
+      if (proxyUrl.includes("https://gogocdn.net")) {
+        proxyUrl = proxyUrl.replace("https://ww5.gogoanimes.fi", "");
       }
+  
+      // Handle VegaMovies domain replacements
+      const vegamoviesPatterns = [
+        { old: "m.vegamovies.yt", new: "vegamovies.ms" },
+        { old: "vegamovies.yt", new: "vegamovies.ms" },
+        { old: "rogmovies.com", new: "rogmovies.cfd" },
+        { old: "vegamovies.nz", new: "vegamovies.ms" },
+        { old: "//vegamovies.mex.com", new: "https://vegamovies.ms" },
+      ];
+  
+      vegamoviesPatterns.forEach(({ old, new: newDomain }) => {
+        if (proxyUrl.includes(old)) {
+          proxyUrl = proxyUrl.replace(old, newDomain);
+        }
+      });
+  
+      return proxyUrl;
     }
-
-    // If no custom image or IMDb poster links available, return default logo
+  
     return defaultLogo;
-  };
+  };  
 
   return (
     <div>

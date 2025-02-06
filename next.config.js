@@ -49,6 +49,7 @@ const nextConfig = {
       'luxmovies.live',
       'microflix.in',
       'microflix.vercel.app',
+      'rogmovies.cfd',
       "localhost"
     ],
     remotePatterns: [
@@ -159,6 +160,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'ww5.gogoanimes.fi',
+      },
+      {
+        protocol: 'https',
+        hostname: 'rogmovies.cfd',
       },
       {
         protocol: 'https',
