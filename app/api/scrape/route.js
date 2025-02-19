@@ -4,7 +4,7 @@ const puppeteer = require("puppeteer");
 import connectToDatabase from "@/lib/mongodb";
 import { Contents } from "@/models/scrapeSchema";
 
-const BASE_URL = "https://vegamovies.ms/page/";
+const BASE_URL = "https://vegamovies.rs/page/";
 const BASE_URL2 = "https://rogmovies.cfd/page/";
 
 const scrapeCode = async (url) => {
@@ -477,7 +477,7 @@ async function scrapePage(pageNumber, site) {
 }
 
 async function processPages() {
-  const site_1_starting_page = 30;
+  const site_1_starting_page = 10;
   const pageNumbers = Array.from(
     { length: 565 },
     (_, i) => site_1_starting_page - i

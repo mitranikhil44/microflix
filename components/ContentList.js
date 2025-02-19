@@ -89,6 +89,7 @@ const ContentList = ({ contents }) => {
         { old: "rogmovies.com", new: "rogmovies.cfd" },
         { old: "vegamovies.nz", new: "vegamovies.ms" },
         { old: "//vegamovies.mex.com", new: "https://vegamovies.ms" },
+        { old: "vegamovies.ms", new: "vegamovies.rs" },
       ];
   
       vegamoviesPatterns.forEach(({ old, new: newDomain }) => {

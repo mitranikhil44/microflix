@@ -1,26 +1,23 @@
 const FetchSSRData = async (page, category) => {
-  const apiKey = process.env.API_KEY;
   try {
     const response = await fetch(
-      `${apiKey}api/blogs?category=${category}&page=${page}`,
+      `${process.env.API_KEY}/api/blogs?category=${category}&page=${page}`,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        revalidate: 10,
+        headers: { "Content-Type": "application/json" },
+        cache: "no-store", // Ensures fresh data
       }
     );
-    const contents = await response.json();
 
-    return {
-      contents,
-      revalidate: 60
-    };
+    if (!response.ok) {
+      throw new Error("Failed to fetch data");
+    }
+
+    const contents = await response.json();
+    return { contents };
   } catch (error) {
-    return {
-      contents: [],
-    };
+    console.error("Fetch error:", error);
+    return { contents: [] };
   }
 };
 
