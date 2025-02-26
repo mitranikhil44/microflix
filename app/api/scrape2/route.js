@@ -2,9 +2,10 @@ import axios from "axios";
 import cheerio from "cheerio";
 import connectToDatabase from "@/lib/mongodb";
 import { Anime_Contents } from "@/models/animeScrapeSchema";
+import { NextResponse } from "next/server";
 
-const BASE_URL_VERSION1 = "https://ww19.gogoanimes.fi/anime-list.html?page=";
-const BASE_URL_VERSION2 = "https://ww19.gogoanimes.fi";
+const BASE_URL_VERSION1 = "https://ww26.gogoanimes.fi/anime-list.html?page=";
+const BASE_URL_VERSION2 = "https://ww26.gogoanimes.fi/";
 
 const scrapeCode = async (url) => {
   try {
@@ -454,4 +455,19 @@ async function main() {
   }
 }
 
-main();
+
+export async function GET() {
+  try {
+    await main();
+    return NextResponse.json({ 
+      success: true,
+      message: "Scraping completed successfully",
+      insertedPages: insertedPagesCount
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    );
+  }
+}

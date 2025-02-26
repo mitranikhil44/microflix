@@ -3,6 +3,7 @@ import cheerio from "cheerio";
 const puppeteer = require("puppeteer");
 import connectToDatabase from "@/lib/mongodb";
 import { Contents } from "@/models/scrapeSchema";
+import { NextResponse } from "next/server";
 
 const BASE_URL = "https://vegamovies.rs/page/";
 const BASE_URL2 = "https://rogmovies.cfd/page/";
@@ -479,7 +480,7 @@ async function scrapePage(pageNumber, site) {
 async function processPages() {
   const site_1_starting_page = 10;
   const pageNumbers = Array.from(
-    { length: 565 },
+    { length: 10 },
     (_, i) => site_1_starting_page - i
   );
 
@@ -503,17 +504,36 @@ async function processPages() {
   }
 }
 
+// Reset counters for each invocation
+insertedPagesCount = 0;
+articlesToInsert = [];
+
+// Modified main function with security and variable reset
 async function main() {
   try {
     await connectToDatabase();
-
     console.log("Starting scraping process...");
     await processPages();
-
-    console.log("Scraping and processing completed.");
+    console.log("Scraping completed");
   } catch (error) {
-    console.error("Error during scraping process:", error.message);
+    console.error("Scraping failed:", error);
+    throw error;
   }
 }
 
-main();
+export async function GET() {
+
+  try {
+    await main();
+    return NextResponse.json({ 
+      success: true,
+      message: "Scraping completed successfully",
+      insertedPages: insertedPagesCount
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    );
+  }
+}

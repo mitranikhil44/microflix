@@ -5,7 +5,7 @@ const FetchSSRData = async (page, category) => {
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        cache: "no-store", // Ensures fresh data
+        cache: "no-store",
       }
     );
 
