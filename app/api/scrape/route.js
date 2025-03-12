@@ -6,7 +6,7 @@ import { Contents } from "@/models/scrapeSchema";
 import { NextResponse } from "next/server";
 
 const BASE_URL = "https://vegamovies.rs/page/";
-const BASE_URL2 = "https://rogmovies.cfd/page/";
+const BASE_URL2 = "https://rogmovies.icu/page/";
 
 const scrapeCode = async (url) => {
   try {
@@ -522,7 +522,6 @@ async function main() {
 }
 
 export async function GET() {
-
   try {
     await main();
     return NextResponse.json({ 
