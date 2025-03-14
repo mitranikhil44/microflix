@@ -1,68 +1,40 @@
+/* Import Tailwind utilities */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Global Reset */
 * {
-  padding: 0px;
-  margin: 0px;
+  padding: 0;
+  margin: 0;
   box-sizing: border-box;
-  color: white;
-  background: transparent;
 }
 
-/* Dark Theme Background */
+/* Optimized Background */
 body {
-  background: radial-gradient(circle at top left, #1a1a1a, #0f0f0f);
-  background-attachment: fixed;
-  min-height: 100vh;
-  font-family: 'Inter', sans-serif;
-  overflow-x: hidden;
-  position: relative;
-  color: #f1f1f1;
+  @apply relative min-h-screen overflow-x-hidden text-white;
+  background: radial-gradient(circle at top left, #121212, #000000);
 }
 
-/* Floating Gradient Shapes */
-.shape-circle {
+/* Optional Glow Effect */
+body::before {
+  content: "";
   position: absolute;
-  width: 150px;
-  height: 150px;
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(255, 255, 255, 0.1));
-  border-radius: 50%;
-  animation: float 8s ease-in-out infinite;
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.4);
+  top: 50%;
+  left: 50%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255, 69, 0, 0.3), transparent);
+  transform: translate(-50%, -50%);
+  filter: blur(80px);
+  z-index: -1;
 }
 
-.shape-circle:nth-child(1) {
-  top: 10%;
-  left: 15%;
-  background: rgba(255, 165, 0, 0.2);
+/* Smooth Transitions */
+html, body {
+  transition: background 0.5s ease-in-out;
 }
 
-.shape-circle:nth-child(2) {
-  bottom: 25%;
-  right: 20%;
-  background: rgba(255, 69, 0, 0.2);
-  width: 160px;
-  height: 160px;
-}
-
-.shape-circle:nth-child(3) {
-  top: 65%;
-  left: 75%;
-  background: rgba(138, 43, 226, 0.2);
-  width: 80px;
-  height: 80px;
-}
-
-/* Smooth Floating Animation */
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
 
 /* Button Styling */
 .button {
