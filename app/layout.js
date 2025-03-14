@@ -91,10 +91,7 @@ export default function RootLayout({ children }) {
           })(window,document,'script','dataLayer','GTM-PHQFK2KV');`}
         </Script>
       </head>
-      <body className="relative text-white">
-        <div className="shape-circle"></div>
-        <div className="shape-circle"></div>
-        <div className="shape-circle"></div>
+      <body className="relative text-white flex flex-col items-center">
         <main className="">
           <WebStoreProvider>
             <div>
