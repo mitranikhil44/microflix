@@ -5547,7 +5547,7 @@ if (!hydration) {
     // Check if element has a custom image
     if (proxyUrl) {
       if (proxyUrl.includes("https://gogocdn.net")) {
-        return proxyUrl.replace("https://ww5.gogoanimes.fi", "");
+        return proxyUrl.replace("https://www28.gogoanimes.fi", "");
       }
 
       // Handle vegamovies domain replacements

@@ -5,8 +5,8 @@ import connectToDatabase from "@/lib/mongodb";
 import { Contents } from "@/models/scrapeSchema";
 import { NextResponse } from "next/server";
 
-const BASE_URL = "https://vegamovies.rs/page/";
-const BASE_URL2 = "https://rogmovies.icu/page/";
+const BASE_URL = "https://vegamovies.bot/page/";
+const BASE_URL2 = "https://rogmovies.lol/page/";
 
 const scrapeCode = async (url) => {
   try {
@@ -484,7 +484,7 @@ async function processPages() {
     (_, i) => site_1_starting_page - i
   );
 
-  const batchSize = 10; // Number of pages to scrape concurrently
+  const batchSize = 5; // Number of pages to scrape concurrently
   for (let i = 0; i < pageNumbers.length; i += batchSize) {
     const batch = pageNumbers.slice(i, i + batchSize);
 

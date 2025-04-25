@@ -79,7 +79,7 @@ const ContentList = ({ contents }) => {
     // If proxy URL is valid, apply domain replacements
     if (proxyUrl) {
       if (proxyUrl.includes("https://gogocdn.net")) {
-        proxyUrl = proxyUrl.replace("https://ww5.gogoanimes.fi", "");
+        proxyUrl = proxyUrl.replace("https://www28.gogoanimes.fi", "");
       }
   
       // Handle VegaMovies domain replacements
