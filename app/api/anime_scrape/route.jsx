@@ -3,8 +3,8 @@ import cheerio from "cheerio";
 import connectToDatabase from "@/lib/mongodb";
 import { Anime_Contents } from "@/models/animeScrapeSchema";
 
-const BASE_URL_VERSION1 = "https://www31.gogoanimes.fi/anime-list?page=";
-const BASE_URL_VERSION2 = "https://www31.gogoanimes.fi/";
+const BASE_URL_VERSION1 = "https://ww19.gogoanimes.fi/anime-list.html?page=";
+const BASE_URL_VERSION2 = "https://ww19.gogoanimes.fi";
 
 const scrapeCode = async (url) => {
   try {
@@ -145,7 +145,8 @@ function extractSearchableContent(title, contentText) {
   };
 
   const releaseYearMatch = contentText
-  .match(/Released:\s*(?:\w+\s+\d{1,2},\s+)?(\d{4})/i);
+    .toLowerCase()
+    .match(/(?:released:|release:)\s*(\d{4})/i);
 
   if (releaseYearMatch) {
     findContent.year = releaseYearMatch[1].trim();
@@ -398,15 +399,14 @@ async function scrapePage(pageNumber) {
 
   try {
     console.log(`Scraping page no. ${pageNumber}`);
-    const response = await axios.get(url);
-    const $ = cheerio.load(response.data);
+    const response3 = await axios.get(url);
+    const $ = cheerio.load(response3.data);
 
-    $("div.anime_list_body li").each((_, element) => {
-      const title = $(element).find("a").text();
-      const articleUrl = $(element).find("a").attr("href");
+    $("div.anime_list_body li a").each((index, element) => {
+      const title = $(element).text();
+      const articleUrl = $(element).attr("href");
       setArticles.push({ title, url: articleUrl });
     });
-
     setArticles.reverse();
     for (const article of setArticles) {
       await processArticle(article);
@@ -418,10 +418,10 @@ async function scrapePage(pageNumber) {
 
 // Process pages in batches of 10
 async function processPages() {
-  const site_1_starting_page = 7;
-  const pageNumbers = Array.from({ length: 7 }, (_, i) => site_1_starting_page - i);
+  const site_1_starting_page = 105;
+  const pageNumbers = Array.from({ length: 105 }, (_, i) => site_1_starting_page - i);
 
-  const batchSize = 1; // Number of pages to scrape in a batch
+  const batchSize = 10; // Number of pages to scrape in a batch
   for (let i = 0; i < pageNumbers.length; i += batchSize) {
     const batch = pageNumbers.slice(i, i + batchSize);
 

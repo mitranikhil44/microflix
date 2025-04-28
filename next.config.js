@@ -17,7 +17,9 @@ const nextConfig = {
       'vegamovies.yt',
       'image.tmdb.org',
       'www.themoviedb.org',
+      "cdn.myanimelist.net",
       'catimages.org',
+      "gogoanime.com",
       'm.media-amazon.com',
       "ww9.gogoanimes.fi",
       'imagetot.com',
@@ -60,6 +62,14 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'dotmovies.bet',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.myanimelist.net',
+      },
+      {
+        protocol: 'https',
+        hostname: 'gogoanime.com',
       },
       {
         protocol: 'https',

@@ -1,9 +1,7 @@
 import axios from "axios";
 import cheerio from "cheerio";
-const puppeteer = require("puppeteer");
 import connectToDatabase from "@/lib/mongodb";
 import { Contents } from "@/models/scrapeSchema";
-import { NextResponse } from "next/server";
 
 const BASE_URL = "https://vegamovies.bot/page/";
 const BASE_URL2 = "https://rogmovies.lol/page/";
@@ -478,9 +476,9 @@ async function scrapePage(pageNumber, site) {
 }
 
 async function processPages() {
-  const site_1_starting_page = 5;
+  const site_1_starting_page = 10;
   const pageNumbers = Array.from(
-    { length: 5 },
+    { length: 10 },
     (_, i) => site_1_starting_page - i
   );
 
@@ -520,19 +518,19 @@ async function main() {
     throw error;
   }
 }
-
-export async function GET() {
-  try {
-    await main();
-    return NextResponse.json({ 
-      success: true,
-      message: "Scraping completed successfully",
-      insertedPages: insertedPagesCount
-    });
-  } catch (error) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    );
-  }
-}
+main();
+// export async function GET() {
+//   try {
+//     await main();
+//     return NextResponse.json({ 
+//       success: true,
+//       message: "Scraping completed successfully",
+//       insertedPages: insertedPagesCount
+//     });
+//   } catch (error) {
+//     return NextResponse.json(
+//       { success: false, error: error.message },
+//       { status: 500 }
+//     );
+//   }
+// }
