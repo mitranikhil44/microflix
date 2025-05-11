@@ -1,14 +1,15 @@
 import axios from "axios";
 import cheerio from "cheerio";
+const isEqual = require("lodash.isequal");
 import connectToDatabase from "@/lib/mongodb";
 import { Anime_Contents } from "@/models/animeScrapeSchema";
 
-const BASE_URL_VERSION1 = "https://ww19.gogoanimes.fi/anime-list.html?page=";
-const BASE_URL_VERSION2 = "https://ww19.gogoanimes.fi";
+const BASE_URL_VERSION1 = "https://www12.gogoanime.me/anime-list.html?page=";
+const BASE_URL_VERSION2 = "https://www12.gogoanime.me";
 
 const scrapeCode = async (url) => {
   try {
-    const response = await axios.get(url, {
+    const response = await fetchWithRetry(url, {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
@@ -36,29 +37,32 @@ const scrapeImdbDetails = async (url, resultsText) => {
     };
 
     const srcset = $("div.ipc-media--poster-27x40 img").first().attr("srcset");
-
-    if (srcset) {
-      const srcsetArray = srcset.split("w,").map((src) => {
-        const [url, width] = src.trim().split(" ");
-        return { url, width };
-      });
-
-      imdbDetails.imdbPosterLink = srcsetArray;
-    } else {
-      console.error("srcset attribute not found");
+    try {
+      if (srcset) {
+        const srcsetArray = srcset.split("w,").map((src) => {
+          const [url, width] = src.trim().split(" ");
+          return { url, width };
+        });
+        imdbDetails.imdbPosterLink = srcsetArray;
+      }
+    } catch (e) {
+      console.warn("Poster link extraction failed.");
     }
 
-    const imdbRatingText = $("div.eWQwwe div.dLwiNw").first().text();
-    imdbDetails.imdbRating.rawRating = imdbRatingText;
-    const regex = /(\d+(\.\d+)?\/10)([\d.,]+[KMB]?)$/;
-    const match = imdbRatingText.match(regex);
+    const imdbRatingText = $("div.sc-d541859f-0");
+    const rating1 = imdbRatingText.find("div.czkfBq").first().text();
+    const rating2 = imdbRatingText.find("div.kxphVf").first().text();
+    const rating3 = imdbRatingText.find("span.sc-d541859f-1").first().text();
+    const votes1 = imdbRatingText.find("div.gUihYJ").first().text();
+    const votes2 = imdbRatingText.find("div.dwhNqC").first().text();
+    const votes3 = imdbRatingText.find("div.sc-d541859f-3").first().text();
 
-    if (match) {
-      imdbDetails.imdbRating.rating = match[1];
-      imdbDetails.imdbRating.votes = match[3];
-    } else {
-      console.log("No IMDB rating data available", resultsText);
-    }
+    let rating = rating3?.trim() || rating2?.trim() || rating1?.trim() || "N/A";
+    let votes = votes3?.trim() || votes2?.trim() || votes1?.trim() || "N/A";
+
+    imdbDetails.imdbRating.rawRating = imdbRatingText.first().text();
+    imdbDetails.imdbRating.rating = rating.replace("/10", "");
+    imdbDetails.imdbRating.votes = votes;
 
     const collectGenres = $("div a.ipc-chip--on-baseAlt span")
       .map((_, el) => $(el).text().trim())
@@ -68,7 +72,6 @@ const scrapeImdbDetails = async (url, resultsText) => {
       : null;
 
     const details = [];
-
     $("div[data-testid='title-details-section'] li[role='presentation']").each(
       function () {
         const detailKey = $(this)
@@ -108,33 +111,43 @@ const scrapeImdbDetails = async (url, resultsText) => {
       }
     );
 
-    imdbDetails.imdbMoreDetails = details;
-
+    imdbDetails.imdbMoreDetails = details;    
     return imdbDetails;
   } catch (error) {
-    console.error("Error during IMDB scraping:", error.message);
+    console.log(
+      "Error during IMDb scraping:",
+      error.message,
+      "Data details = ",
+      url,
+      resultsText
+    );
     throw error;
   }
 };
 
 const searchIMDb = async (query) => {
+  let resultsLinks = "";
+  let resultsText = "";
   try {
     const url = `https://www.imdb.com/find?q=${query}`;
     const scrapeData = await scrapeCode(url);
     const $ = cheerio.load(scrapeData);
-
-    const resultsText = $(
-      "li.find-result-item a.ipc-metadata-list-summary-item__t"
-    )
-      .first()
-      .text();
-    const resultsLinks = $(
-      "li.find-result-item a.ipc-metadata-list-summary-item__t"
-    ).attr("href");
+    const title = $(
+      "section.ipc-page-section ul li div.ipc-metadata-list-summary-item__c a"
+    );
+    resultsLinks += title.first().attr("href");
+    resultsText += title.first().text();
 
     return { resultsText: resultsText, resultsLinks: resultsLinks };
   } catch (error) {
-    console.error("Error during IMDb search:", error.message);
+    console.log(
+      "Error during IMDb search:",
+      error.message,
+      "Date details = ",
+      resultsLinks,
+      resultsText,
+      query
+    );
   }
 };
 
@@ -160,96 +173,88 @@ function extractSearchableContent(title, contentText) {
 
 async function processArticle(article) {
   const { url, title } = article;
+  const fullUrl = `${BASE_URL_VERSION2}${url}`;
+  const slug = generateSlug(title);
+  let isUpdate = false;
+
   try {
-    const response = await axios.get(`${BASE_URL_VERSION2}${url}`);
+    // Fetch page content
+    const response = await fetchWithRetry(fullUrl);
     const $ = cheerio.load(response.data);
 
     const contentElement = $("div.main_body");
     if (!contentElement.length) {
-      console.error("Content element not found for article:", title);
+      console.error(`Main content not found for: ${title}`);
       return;
     }
 
-    const slug =
-      "download_" +
-      title
-        .replace(/[^\w\s]/g, "")
-        .replace(/\s+/g, "_")
-        .toLowerCase();
-
     const mainContent = contentElement.find("div.anime_info_body_bg");
+    const rawHtmlContent = mainContent.html() || "";
 
-    const content = mainContent.html();
-
-    const image = BASE_URL_VERSION2 + mainContent.find("img").attr("src");
+    const imageSrc = mainContent.find("img").attr("src") || "";
+    const image = imageSrc.startsWith("http") ? imageSrc : BASE_URL_VERSION2 + imageSrc;
 
     const searchableContent = extractSearchableContent(
       title.toLowerCase(),
       mainContent.text().trim()
     );
 
-    const contentLinkData = await scrapeLinkData(`${BASE_URL_VERSION2}${url}`);
+    // Scrape episode/download data
+    const contentLinkData = await scrapeLinkData(fullUrl);
 
-    const existingArticle = await Anime_Contents.findOne({ slug });
-    let isUpdate = false;
+    // Check for existing entry
+    const existingEntry = await Anime_Contents.findOne({ slug });
 
-    if (existingArticle) {
-      if (existingArticle.contentLinkData === contentLinkData) {
-        // No need to update
-        console.log(`No new data for ${title}, skipping update.`);
-      } else {
-        // New content available, update existing entry
-        const imdbData = await getIMDbDetails(
-          searchableContent.search
-            .replace(/[^\w\s]/g, "")
-            .replace(/\s+/g, "_")
-            .toLowerCase()
-        );
-
-        isUpdate = true;
-
-        const releaseDate = await releasedDate(imdbData);
-
-        await updateOrCreateDatabaseEntry({
-          title,
-          image,
-          slug,
-          content,
-          contentLinkData,
-          imdbData: searchableContent.imdbData,
-          releaseDate,
-          updateData: isUpdate,
-          releaseYear: searchableContent.releaseYear,
-        });
+    if (existingEntry) {
+      if (isEqual(existingEntry.contentLinkData, contentLinkData)) {
+        console.log(`No new episode data for "${title}", skipping update.`);
+        return;
       }
-    } else {
-      // New entry, create it
-      const imdbData = await getIMDbDetails(
-        searchableContent.search
-          .replace(/[^\w\s]/g, "")
-          .replace(/\s+/g, "_")
-          .toLowerCase()
-      );
 
-      const releaseDate = await releasedDate(imdbData);
-
-      await updateOrCreateDatabaseEntry({
-        title,
-        image,
-        slug,
-        content,
-        contentLinkData,
-        imdbData,
-        releaseDate,
-        updateData: isUpdate,
-        releaseYear: searchableContent.releaseYear,
-      });
+      isUpdate = true;
     }
+
+    // Get IMDb + release date regardless of new or update
+    const imdbQuery = searchableContent.search
+      .replace(/[^\w\s]/g, "")
+      .replace(/\s+/g, "_")
+      .toLowerCase();
+
+    const imdbData = await getIMDbDetails(imdbQuery);
+    const releaseDate = await releasedDate(imdbData);
+
+    // Create or update database
+    await updateOrCreateDatabaseEntry({
+      title,
+      image,
+      slug,
+      content: rawHtmlContent,
+      contentLinkData,
+      imdbData,
+      releaseDate,
+      updateData: isUpdate,
+      releaseYear: searchableContent.releaseYear,
+    });
+
+    console.log(`${isUpdate ? "Updated" : "Created"} entry for "${title}"`);
+
   } catch (error) {
-    console.error("Error processing article:", error.message);
+    console.error(`Error processing article "${title}":`, error.message);
     throw error;
   }
 }
+
+// --- Helper: Slug Generator ---
+function generateSlug(title) {
+  return (
+    "download_" +
+    title
+      .replace(/[^\w\s]/g, "")
+      .replace(/\s+/g, "_")
+      .toLowerCase()
+  );
+}
+
 
 async function releasedDate(imdbData) {
   let releaseDate = "";
@@ -270,63 +275,79 @@ async function releasedDate(imdbData) {
 async function getIMDbDetails(searchableContent) {
   try {
     const imdbLinks = await searchIMDb(searchableContent);
-    return await scrapeImdbDetails(
-      imdbLinks.resultsLinks,
-      imdbLinks.resultsText
-    );
+    if (!imdbLinks?.resultsLinks) {
+      console.warn(`IMDb search failed for: ${searchableContent}`);
+      return getDefaultImdbData(searchableContent);
+    }
+
+    return await scrapeImdbDetails(imdbLinks.resultsLinks, imdbLinks.resultsText);
   } catch (error) {
-    console.error("Error fetching IMDB details:", error.message);
-    return null;
+    console.error("IMDb details fetch error:", error.message);
+    return getDefaultImdbData(searchableContent);
   }
 }
 
-async function scrapeLinkData(url) {
-  try {
-    let nextEpisode = true;
-    let episodeNo = 1;
-    const linkDataList = [];
+function getDefaultImdbData(title = "") {
+  return {
+    imdbName: title,
+    imdbPosterLink: null,
+    imdbRating: { rawRating: null, rating: "N/A", votes: "N/A" },
+    imdbGenres: null,
+    imdbMoreDetails: [],
+  };
+} 
 
-    while (nextEpisode) {
-      const properUrl = url.replace("category/", "") + `-episode-${episodeNo}`;
-      const response = await axios.get(properUrl);
+async function scrapeLinkData(url) {
+  const linkDataList = [];
+  let episodeNo = 1;
+
+  while (true) {
+    const episodeUrl = url.replace("category/", "") + `-episode-${episodeNo}`;
+
+    try {
+      const response = await fetchWithRetry(episodeUrl);
       const $ = cheerio.load(response.data);
       const container = $("div.anime_video_body");
-      const category = container
-        .find("div.anime_video_body_cate a")
-        .attr("title");
-      const downloadLink = container.find("li.dowloads a").attr("href");
-      const downloadableLinks = container
-        .find("div.anime_muti_link a")
-        .map((index, elem) => {
-          return {
-            name: $(elem)
-              .text()
-              .trim()
-              .replace("Choose this server", "")
-              .trim(),
-            link: $(elem).attr("data-video"),
-          };
-        })
-        .get();
 
-      if (!downloadLink) {
-        nextEpisode = false;
+      if (!container.length) {
+        break;
+      }
+
+      const category = container.find("div.anime_video_body_cate a").attr("title") || "";
+      const downloadLink = container.find("li.dowloads a").attr("href") || "";
+
+      const downloadableLinks = container
+        .find("div.anime_muti_link li")
+        .map((_, elem) => ({
+          name: $(elem).text().trim().replace("Choose this server", "").trim(),
+          link: $(elem).find("a").attr("data-video") || "",
+        }))
+        .get()
+        .filter(item => item.link); // Remove invalid entries
+
+      if (!downloadLink && downloadableLinks.length === 0) {
+        break;
+      }
+
+      linkDataList.push({
+        episodeNo,
+        category,
+        downloadLink,
+        downloadableLinks,
+      });
+
+      episodeNo++;
+
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        break;
       } else {
-        linkDataList.push({
-          episodeNo,
-          category,
-          downloadLink,
-          downloadableLinks,
-        });
-        episodeNo++;
+        console.log(`Unexpected error at episode ${episodeNo}:`, error.message);
+        break; // Optional: continue to next episode if you prefer
       }
     }
-
-    return linkDataList;
-  } catch (error) {
-    console.error("Error processing episode link data:", error.message);
-    return [];
   }
+  return linkDataList;
 }
 
 let insertedPagesCount = 0; // Counter for tracking inserted pages
@@ -344,19 +365,23 @@ async function updateOrCreateDatabaseEntry({
   releaseDate,
   imdbData,
 }) {
+  if (!title || !slug || !image || !content) {
+    console.warn(`Essential data missing, skipping: ${title}`);
+    return;
+  } 
   try {
     const updateData = {
       title,
-      url,
+      url: url || "",
       image,
-      contentLinkData,
+      contentLinkData: contentLinkData || [],
       slug,
       content,
       releaseYear: releaseYear || null,
       releaseDate: releaseDate || null,
-      imdbDetails: imdbData || null,
+      imdbDetails: imdbData || getDefaultImdbData(title),
     };
-
+    
     // Check if the article already exists
     const existingArticle = await Anime_Contents.findOne({ slug });
 
@@ -384,9 +409,9 @@ async function updateOrCreateDatabaseEntry({
 async function finalizeBatchInsert() {
   try {
     if (articlesToInsert.length > 0) {
-      await Anime_Contents.insertMany(articlesToInsert); // Bulk insert
+      await Anime_Contents.insertMany(articlesToInsert);
       console.log(`Final batch inserted with ${articlesToInsert.length} articles`);
-      articlesToInsert = []; // Clear the array
+      articlesToInsert = []; 
     }
   } catch (error) {
     console.error("Error during batch insertion:", error.message);
@@ -399,13 +424,13 @@ async function scrapePage(pageNumber) {
 
   try {
     console.log(`Scraping page no. ${pageNumber}`);
-    const response3 = await axios.get(url);
-    const $ = cheerio.load(response3.data);
+    const response = await fetchWithRetry(url);
+    const $ = cheerio.load(response.data);
 
-    $("div.anime_list_body li a").each((index, element) => {
+    $("div.anime_list_body li a").each((_, element) => {
       const title = $(element).text();
-      const articleUrl = $(element).attr("href");
-      setArticles.push({ title, url: articleUrl });
+      const url = $(element).attr("href");
+      setArticles.push({ title, url });
     });
     setArticles.reverse();
     for (const article of setArticles) {
@@ -416,12 +441,11 @@ async function scrapePage(pageNumber) {
   }
 }
 
-// Process pages in batches of 10
 async function processPages() {
-  const site_1_starting_page = 105;
-  const pageNumbers = Array.from({ length: 105 }, (_, i) => site_1_starting_page - i);
+  const site_1_starting_page = 142;
+  const pageNumbers = Array.from({ length: 143 }, (_, i) => site_1_starting_page - i);
 
-  const batchSize = 10; // Number of pages to scrape in a batch
+  const batchSize = 1; // Number of pages to scrape in a batch
   for (let i = 0; i < pageNumbers.length; i += batchSize) {
     const batch = pageNumbers.slice(i, i + batchSize);
 
@@ -454,4 +478,22 @@ async function main() {
   }
 }
 
+async function fetchWithRetry(url, retries = 3, delayMs = 3000) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await axios.get(url);
+    } catch (err) {
+      if (err.code === 'ECONNRESET' && i < retries - 1) {
+        console.warn(`Retrying ${url} (attempt ${i + 1})...`);
+        await delay(delayMs);
+      } else {
+        throw err;
+      }
+    }
+  }
+}
+
+function delay(ms) {
+  return new Promise((res) => setTimeout(res, ms));
+}
 main();

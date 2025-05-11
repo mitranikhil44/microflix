@@ -482,7 +482,7 @@ async function processPages() {
     (_, i) => site_1_starting_page - i
   );
 
-  const batchSize = 5; // Number of pages to scrape concurrently
+  const batchSize = 10; 
   for (let i = 0; i < pageNumbers.length; i += batchSize) {
     const batch = pageNumbers.slice(i, i + batchSize);
 
