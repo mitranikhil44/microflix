@@ -49,11 +49,11 @@ export default async function Anime_Content_Post({ params }) {
         />
         <meta
           property="og:url"
-          content={`https://microflix.vercel.app/anime_hub/${slug}/${parsedCurrentPage}/${currentEpisode}`}
+          content={`https://microflix.in/anime_hub/${slug}/${parsedCurrentPage}/${currentEpisode}`}
         />
         <link
           rel="canonical"
-          href={`https://microflix.vercel.app/anime_hub/${slug}/${parsedCurrentPage}/${currentEpisode}`}
+          href={`https://microflix.in/anime_hub/${slug}/${parsedCurrentPage}/${currentEpisode}`}
         />
       </div>
       <div>

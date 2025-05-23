@@ -36,7 +36,7 @@ export default function RootLayout({ children }) {
         <meta property="og:site_name" content="Microflix" />
         <meta
           property="og:image"
-          content="https://microflix.vercel.app/fav_icons/android-chrome-512x512.png"
+          content="https://microflix.in/fav_icons/android-chrome-512x512.png"
         />
 
         <meta name="twitter:card" content="summary_large_image" />

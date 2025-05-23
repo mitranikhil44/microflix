@@ -22,7 +22,7 @@ export async function GET(req) {
 }
 
 const generateSitemapXml = (slugs) => {
-  const baseUrl = 'https://microflix.vercel.app/data';
+  const baseUrl = 'https://microflix.in/data';
   const pages = slugs.map((slug) => ({
     loc: `${baseUrl}/${slug}`,
     lastmod: new Date().toISOString(),

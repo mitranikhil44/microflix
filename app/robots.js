@@ -5,6 +5,6 @@ export default function robots() {
         allow: '/',
         disallow: '',
       },
-      sitemap: 'https://microflix.vercel.app/api/sitemap',
+      sitemap: 'https://microflix.in/api/sitemap',
     }
   }

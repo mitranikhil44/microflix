@@ -78,8 +78,8 @@ export default async function Content_Post({ params }) {
         <meta name="keywords" content={finalKeywords} />
         <meta property="og:description" content={extractedText.slice(0, 170)} />
         <meta name="twitter:description" content={extractedText.slice(0, 170)} />
-        <meta property="og:url" content={`https://microflix.vercel.app/data/${slug}`} />
-        <link rel="canonical" href={`https://microflix.vercel.app/data/${slug}`} />
+        <meta property="og:url" content={`https://microflix.in/data/${slug}`} />
+        <link rel="canonical" href={`https://microflix.in/data/${slug}`} />
       </div>
       <div>
         <h1 className="text-center font-semibold xxl:text-4xl xl:text-3xl lg:text-2xl md:text-xl sm:text-lg text-base">

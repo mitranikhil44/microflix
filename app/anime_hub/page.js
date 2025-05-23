@@ -25,7 +25,7 @@ export default async function Home() {
           name="twitter:title"
           content="Microflix - Watch and Download Animes in 480p, 720p & 1080p"
         />
-        <link rel="canonical" href="https://microflix.vercel.app/anime_hub" />
+        <link rel="canonical" href="https://microflix.in/anime_hub" />
         <meta
           name="description"
           content="Microflix - Download in 480p, 720p, 1080p. Enjoy high-quality animes in Dubbed and original audio."
@@ -38,7 +38,7 @@ export default async function Home() {
           name="twitter:description"
           content="Microflix - Download in 480p, 720p, 1080p. Enjoy high-quality animes in Dubbed and original audio."
         />
-        <meta property="og:url" content="https://microflix.vercel.app/anime_hub" />
+        <meta property="og:url" content="https://microflix.in/anime_hub" />
       </div>
       <ContentList contents={contentData.contents}/>
       <AnimePaginationButton totalPages={totalPages} page={1} cateogry={"anime_contents"} />
